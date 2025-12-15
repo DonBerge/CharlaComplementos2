@@ -1,59 +1,35 @@
 {-# LANGUAGE DeriveFunctor #-}
---data List a = Nil | Cons a (List a)
 
-type List a = [a]
+-- Minimax: Dos jugadores comienzan en la raiz de un arbol finito. En cada
+-- turno pueden elegir si ir a la rama izquierda o la derecha del arbol.
+-- El puntaje final es la suma de los valores de los nodos visitados.
+-- Un jugador siempre trata de maximizar el puntaje mientras otro trata
+-- de minimizarlo. ¿Cual es el puntaje final?
 
-data ListF a x = NilF | ConsF a x
-  deriving (Show,Eq, Functor)
+data TreeF a x = E_F | N_F x a x deriving Functor
 
-inn :: ListF a (List a) -> List a
-inn NilF = []
-inn (ConsF x xs) = x:xs
+a1 :: (Num p, Ord p) => TreeF p (a, p) -> p
+a1 E_F = 0
+a1 (N_F l v r) = v + (snd l `max` snd r)
 
-innInv :: List a -> ListF a (List a)
-innInv [] = NilF
-innInv (x:xs) = ConsF x xs
+a2 :: (Num p, Ord p) => TreeF p (p, b) -> p
+a2 E_F = 0
+a2 (N_F l v r) = v + (fst l `min` fst r)
 
--- Necesitamos saber a que f-algebra ir, usamos la acción f del F-algebra destino para saberlo. 
-cata :: (ListF a b -> b) -> List a -> b
-cata f = f . fmap (cata f) . innInv
+data Tree a = E | N (Tree a) a (Tree a) deriving Show
 
-sumF NilF = 0
-sumF (ConsF x xs) = x + xs
+split :: (a->b) -> (a->c) -> (a->(b,c))
+split f g x = (f x,g x)
 
-----------------------------------------------
+outInv :: Tree a -> TreeF a (Tree a)
+outInv E = E_F
+outInv (N l x r) = N_F l x r
 
-data Tree a = E | L a | N (Tree a) a (Tree a) deriving Show
+maximize :: Tree Int -> Int
+maximize = a1 . fmap (split maximize minimize) . outInv
 
-data TreeF a x = E_F | L_F a | N_F x a x
-  deriving (Show,Eq, Functor)
+minimize :: Tree Int -> Int
+minimize = a2 . fmap (split maximize minimize) . outInv
 
-out :: Tree a -> TreeF a (Tree a)
-out E = E_F
-out (L x) = L_F x
-out (N l x r) = N_F l x r
-
-outInv :: TreeF a (Tree a) -> Tree a
-outInv E_F = E
-outInv (L_F x) = L x
-outInv (N_F l x r) = N l x r
-
-ana :: (b -> TreeF a b) -> b -> Tree a
-ana f = outInv . fmap (ana f) . f
-
--- Podemos usar ana para generalizar la generación de árboles:
-
--- Generar un arbol binario completo de altura n con etiquetas n
-hasta :: Int -> Tree Int
-hasta n = ana gen n
-  where
-    gen x
-      | x==0 = E_F
-      | x==1 = L_F x
-      | otherwise = N_F (x-1) x (x-1)
-
--- Generar un arbol binario infinito con etiquetas n
-infinito:: a -> Tree a
-infinito x = ana gen x
-  where
-    gen x = N_F x x x
+someTree :: Tree Int
+someTree = N (N E 2 E) 3 (N E 4 E)

@@ -228,6 +228,8 @@ Es decir, un hylomorfismo hace conmutar el siguiente diagrama:
       F C --F h------> F A
 ```
 
+El conjunto de todos los hylomorfismos entre la $F$-coálgebra $(C, \gamma)$ y la $F$-álgebra $(A, \alpha)$ se denota como $\operatorname{Hylo}((C, \gamma),(A, \alpha))$ o simplemente $\operatorname{Hylo}_{\gamma}^{\alpha}$.
+
 El esquema "Divide & Conquer" se puede interpretar de la siguiente manera:
 - La coálgebra $(C, \gamma)$ descompone el problema original en subproblemas más pequeños.
 - El morfismo $F \ h$ resuelve cada uno de los subproblemas.
@@ -295,7 +297,7 @@ tailRecursion :: a -> A
 tailRecursion = a . fmap tailRecursion . c
 ```
 
-## Coálgebras recursivas, álgebras corecursivas y reglas de unicidad
+## Coálgebras recursivas y álgebras corecursivas
 Los Hylomorfismos son altamente expresivos, en el sentido de que la enorme mayoría de los esquemas de recursión estructurada pueden definirse como hylomorfismos. Pero esta expresividad viene con un costo, no hay garantía de la existencia o unicidad de un hylomorfismo $h$ entre una $F$-coálgebra $(C, \gamma)$ y una $F$-álgebra $(A, \alpha)$ cualquiera.
 
 En el ejemplo de recursión de cola, si la coalgebra $c$ fuese definida como:
@@ -308,9 +310,13 @@ El problema es que la coálgebra puede llegar a generar una cantidad infinita de
 
 Para evitar estos problemas se pueden considerar aquellas coálgebras que para cualquier álgebra la hyloecuación tiene una única solución y, de manera dual, aquellas álgebras que para cualquier coálgebra la hyloecuación tiene una única solución. Las primeras reciben el nombre de *coálgebras recursivas* y las segundas el nombre de *álgebras corecursivas*.
 
+En este caso, el único hylomorfismo entre un álgebra corecursiva $\alpha$ y otra coálgebra $\gamma$ se denota como $(|\alpha \leftarrow \gamma|)$ y en el caso dual se denota como $|( \alpha \leftarrow \gamma)|$.
+
 **Toda álgebra inicial es corecursiva y toda coálgebra terminal es recursiva**: El hylomorfismo que resuelve la hyloecuación en estos casos es simplemente el catamorfismo o anamorfismo respectivamente.
 
 Es de interés preguntarse si existen otras álgebras corecursivas o coálgebras recursivas además de las iniciales y terminales. Las reglas de unicidad nos permiten construir nuevas álgebras corecursivas y coálgebras recursivas a partir de otras ya conocidas.
+
+## Reglas de unicidad
 
 ### Definiciones previas
 #### Funtores entre álgebras
@@ -318,14 +324,14 @@ Es de interés preguntarse si existen otras álgebras corecursivas o coálgebras
 Dado que una $F$-álgebra(y respectivamente una $F$-coálgebra) posee más estructura que la categoría $\mathscr{C}$ sobre la cual está definida, es posible definir un funtor olvido de manera similar al de su contraparte en $\mathbf{Set}$. El funtor olvido de $F$-$\mathbf{Alg}(\mathscr{C})$ en $\mathscr{C}$ se denota como $U_F$ y su análogo sobre $G$-coálgebras se denota como $U^G$. Cuando operan sobre objetos, ambos funtores simplemente retornan el *carrier* de la álgebra o coálgebra respectivamente. Cuando operan sobre morfismos, ambos funtores retornan el mismo morfismo en $\mathscr{C}$.
 
 ##### Funtores promocion(o lifting)
-Un funtor $\bar H :F\text{-}\mathbf{Alg}(\mathscr{C})\to G\text{-}\mathbf{Alg}(\mathscr{C})$ es una *promoción* (o *lifting*) de un funtor $H:\mathscr{C}\to \mathscr{C}$ si el siguiente diagrama conmuta:
+Un funtor $\bar H :F\text{-}\mathbf{Alg}(\mathscr{C})\to G\text{-}\mathbf{Alg}(\mathscr{D})$ es una *promoción* (o *lifting*) de un funtor $H:\mathscr{C}\to \mathscr{D}$ si el siguiente diagrama conmuta:
 
 ```
-  F-Alg(\mathscr{C})  ----\bar H---->  G-Alg(\mathscr{C})
+  F-Alg(\mathscr{C})  ----\bar H---->  G-Alg(\mathscr{D})
           |                             |
         U_F                           U_G
           v                             v
-      \mathscr{C}  ------H------->  \mathscr{C}
+      \mathscr{C}  ------H------->  \mathscr{D}
 ```
 Los funtores promoción solo cambian acciones, los *carriers* y los morfismos permanecen fijos. Un funtor promoción especial puede ser definido a partir de una transformación natural $\lambda: G \circ H \to H \circ F$. De esta forma se define el funtor promoción $H^\lambda$ como:
 $$
@@ -366,22 +372,116 @@ $$
 Para todo $f \in \operatorname{Hom}_{\mathscr{C}}(L A, B)$ y todo $g \in \operatorname{Hom}_{\mathscr{D}}(A, R B)$. Una propiedad importante es que es posible determinar $\sigma$ si se conoce $\tau$ y viceversa.
 
 ### Rolling rule
-Ahora consideramos àlgebras y coálgebras definidas por la composición de dos endofuntores base. La *rolling rule* nos permite ...
+Ahora consideramos àlgebras y coálgebras definidas por la composición de dos endofuntores base.
 
-Suponiendo que se tiene el siguiente diagrama, donde $(L,R)$ forman una adjunción entre dos categorías $\mathscr{C}$ y $\mathscr{D}$:
+Suponiendo que se tiene el siguiente diagrama, donde $(L,R)$ son dos funtores entre dos categorías $\mathscr{C}$ y $\mathscr{D}$:
 
 ```
-   (L.R)-Alg(\mathscr{C})  ------------------>  (R.L)-Alg(\mathscr{D})
-         |                                         |
-         |                                         |
-         v                                         v
-    \mathscr{C}  ------------------------->  \mathscr{D}
-         
+\begin{tikzcd}
+(L\circ R)-Alg(\mathscr{C}) \arrow[d, "U^{L \circ R}"'] \arrow[rrr, "\bar R"] &  &  & (R\circ L)-Alg(\mathscr{C}) \arrow[d, "U^{R\circ L}"]                           \\
+\mathscr{C} \arrow[rrr, "R"', shift right]                                    &  &  & \mathscr{D} \arrow[lll, "L"', shift right]                                      \\
+(L\circ R)-CoAlg(\mathscr{C}) \arrow[u, "U_{L\circ R}"]                       &  &  & (R\circ L)-CoAlg(\mathscr{C}) \arrow[u, "U_{R \circ L}"'] \arrow[lll, "\bar L"]
+\end{tikzcd}
+```
+Se puede construir $\bar R$ y $\bar L$ a partir de una transformación natural $\lambda: L \circ (R \circ L) \to (L \circ R) \circ L$; una transformación que cumple esto es la identidad: $\bar L=L_{id}$ y $\bar R=R^{id}$.
 
-    (L.R)-Coalg(\mathscr{C})  <------------------  (R.L)-Coalg(\mathscr{D})
-         |                                         |
-         |                                         |
-         v                                         v
-    \mathscr{C}  <------------------------  \mathscr{D}
+La rolling rule establece una "adjunción" entre dos tipos de hylomorfismos:
+#### Teorema (Rolling rule)
+Sea $(A, \alpha)$ una $(L \circ R)$-álgebra en $\mathscr{C}$ y $(C, \gamma)$ una $(R \circ L)$-coálgebra en $\mathscr{D}$. Entonces:
+$$
+\bar L(C,\gamma) \mapsto (A,\alpha) \cong (C,\gamma) \mapsto \bar R(A,\alpha)
+$$
+
+La relación es de "adjunción" entre comillas porque los hylomorfismos no forman una categoría(dos hylomorfismos no se pueden componer).
+
+La rolling rule permite conseguir coálgebras recursivas y álgebras corecursivas a partir de otras ya conocidas.
+
+#### Teorema
+Las copromociones preservan recursividad y las promociones preservan corecursividad.
+$$\underline{L}: (R\circ L)-\mathbf{Rec}(\mathscr{D}) \to (L \circ R)-\mathbf{Rec}(\mathscr{C})$$
+$$\overline{R}: (L\circ R)-\mathbf{Corec}(\mathscr{C}) \to (R \circ L)-\mathbf{Corec}(\mathscr{D})$$
+
+### Conjugate rule
+La rolling rule solo puede aplicarse cuando el funtor base es la composición de dos funtores. La conjugate rule extiende esta idea a cualquier par de endofuntores $F:\mathscr{C} \to \mathscr{C}$ y $G:\mathscr{D} \to \mathscr{D}$ cuando existe una adjunción $L \dashv R: \mathscr{C} \to \mathscr{D}$ y dos transformaciones naturales conjugadas $\sigma: L \circ G \to F \circ L$ y $\tau: G \circ R \to R \circ F$.
+
+En este caso, los funtores $L$ y $R$ se pueden promocionar hacia las categorías de álgebras y coálgebras utilizando las transformaciones naturales conjugadas. Se tiene el siguiente diagrama:
+```
+\begin{tikzcd}
+F-Alg(\mathscr{C}) \arrow[rr, "R^\tau"] \arrow[d, "U^F"']                                    &      & F-Alg(\mathscr{D}) \arrow[d, "U^G"]                                                         \\
+\mathscr C \arrow["F"', loop, distance=2em, in=215, out=145] \arrow[rr, "R"', shift right=2] & \bot & \mathscr D \arrow["G"', loop, distance=2em, in=35, out=325] \arrow[ll, "L"', shift right=2] \\
+F-Coalg(\mathscr{C}) \arrow[u, "U_F"]                                                        &      & G-Coalg(\mathscr{D}) \arrow[ll, "L_\sigma"] \arrow[u, "U_G"']                              
+\end{tikzcd}
 ```
 
+Podemos definir una "adjunción" entre hylomorfismos de manera similar a la rolling rule:
+#### Teorema (Conjugate rule)
+Sea $(A, \alpha)$ una $F$-álgebra en $\mathscr{C}$ y $(C, \gamma)$ una $G$-coálgebra en $\mathscr{D}$. Entonces:
+$$
+L_\sigma (C,\gamma) \mapsto (A,\alpha) \cong (C,\gamma) \mapsto R^\tau (A,\alpha)
+$$
+
+Y de manera similar a la rolling rule, se pueden conseguir coálgebras recursivas y álgebras corecursivas a partir de otras ya conocidas:
+#### Teorema
+Las copromociones preservan recursividad y las promociones preservan corecursividad si las mismas se realizan usando transformaciones naturales conjugadas.
+$$L_\sigma: G\text{-}\mathbf{Rec}(\mathscr{D}) \to F\text{-}\mathbf{Rec}(\mathscr{C})$$
+$$R^\tau: F\text{-}\mathbf{Corec}(\mathscr{C}) \to G\text{-}\mathbf{Corec}(\mathscr{D})$$
+
+La conjugate rule indica que hay una correspondencia biunívoca entre un par de hylomorfismos denominados *hylomorfismos conjugados*. Usando la notación de hylomorfismos únicos se puede escribir como sigue:
+$$
+\lfloor(|\alpha \leftarrow L_\sigma \gamma|)\rfloor = (|R^\tau \alpha \leftarrow \gamma|)
+$$
+$$
+\lceil|(R^\tau \alpha \leftarrow \gamma)|\rceil = |(\alpha \leftarrow L^\sigma \gamma)|
+$$
+
+#### Ejemplo Hylo-shift Law
+
+Usando la conjugate rule es posible derivar nuevas propiedades y esquemas de recursión a partir de una adjunción y un par de transformaciones naturales conjugadas.
+
+Un ejemplo es el siguiente:
+
+Sea $(A,\alpha)$ una $F$-álgebra, $(C,\gamma)$ una $G$-coálgebra sobre una categoría $\mathscr{C}$, y sea $\eta: G \to F$ una transformación natural. Una adjunción sobre $\mathscr{C}$ se puede formar a partir del funtor identidad $(\operatorname{Id} \dashv \operatorname{Id})$. La misma transformación $\eta$ induce un par conjugado de transformaciones naturales $\eta: \operatorname{Id} \circ G \to F \circ \operatorname{Id}$ y $\eta: G \circ \operatorname{Id} \to \operatorname{Id} \circ F$. Por lo que la conjugate rule induce los hylomorfismos conjugados:
+$$
+(|\alpha \circ \eta A \leftarrow \gamma|) = (|\alpha \leftarrow \eta C \circ \gamma|)
+$$
+Esta ley se conoce como *hylo-shift law* y permite "mover" una transformación natural entre la acción de un álgebra y la acción de una coálgebra dentro de un hylomorfismo.
+
+#### Ejemplo: Mutu-Hylos
+Elegir como adjunción los funtores $(\triangle \dashv (\times))$ da como resultado el esquema de recursión *mutu-hylos*, donde cada álgebra requiere del resultado de la otra para consumir su estructura. Un ejemplo del patrón mutu-hylo es el juego Minimax:
+```haskell
+-- Minimax: Dos jugadores comienzan en la raiz de un arbol finito. En cada
+-- turno pueden elegir si ir a la rama izquierda o la derecha del arbol.
+-- El puntaje final es la suma de los valores de los nodos visitados.
+-- Un jugador siempre trata de maximizar el puntaje mientras otro trata
+-- de minimizarlo. ¿Cual es el puntaje final?
+
+data TreeF a x = E_F | N_F x a x deriving Functor
+
+a1 :: (Num p, Ord p) => TreeF p (a, p) -> p
+a1 E_F = 0
+a1 (N_F l v r) = v + (snd l `max` snd r)
+
+a2 :: (Num p, Ord p) => TreeF p (p, b) -> p
+a2 E_F = 0
+a2 (N_F l v r) = v + (fst l `min` fst r)
+
+data Tree a = E | N (Tree a) a (Tree a) deriving Show
+
+split :: (a->b) -> (a->c) -> (a->(b,c))
+split f g x = (f x,g x)
+
+outInv :: Tree a -> TreeF a (Tree a)
+outInv E = E_F
+outInv (N l x r) = N_F l x r
+
+maximize :: Tree Int -> Int
+maximize = a1 . fmap (split maximize minimize) . outInv
+
+minimize :: Tree Int -> Int
+minimize = a2 . fmap (split maximize minimize) . outInv
+
+--someTree :: Tree Int
+--someTree = N (N E 2 E) 3 (N E 4 E)
+-- maximize someTree == 7
+-- minimize someTree == 5
+```
