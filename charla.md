@@ -61,9 +61,9 @@ Sin embargo, muchos de los algoritmos de recursión estructurada pueden unificar
 ## F-algebras y F-coálgebras
 
 ### Definiciones
-Dada una categoría 𝓒 y un endofuntor F: 𝓒 → 𝓒 denominado *funtor base*, una F-álgebra es un par (A, α) donde A es un objeto de 𝓒 denominado *carrier* y α: F A → A es una morfismo en 𝓒 denominado *acción*. Cuando el contexto lo permite, me referiré a una F-álgebra particular solo por su acción.
+Dada una categoría $\mathscr{C}$ y un endofuntor F: $\mathscr{C}$ → $\mathscr{C}$ denominado *funtor base*, una F-álgebra es un par (A, α) donde A es un objeto de $\mathscr{C}$ denominado *carrier* y α: F A → A es una morfismo en $\mathscr{C}$ denominado *acción*. Cuando el contexto lo permite, me referiré a una F-álgebra particular solo por su acción.
 
-Un morfismo entre dos F-álgebras (A, α) y (B, β) es un morfismo f: A → B en 𝓒 tal que el siguiente diagrama conmuta:
+Un morfismo entre dos F-álgebras (A, α) y (B, β) es un morfismo f: A → B en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
 
 ```
       F A  ----F f---->  F B
@@ -75,7 +75,7 @@ Un morfismo entre dos F-álgebras (A, α) y (B, β) es un morfismo f: A → B en
 
 Las F-álgebras y sus morfismos forman una categoría denominada *categoría de F-álgebras* y denotada como $F-\mathbf{Alg}(\mathscr{C})$.
 
-De manera dual, una F-coálgebra es un par (A, α) donde A es un objeto de 𝓒 y α: A → F A es un morfismo en 𝓒. Un morfismo entre dos F-coálgebras (A, α) y (B, β) es un morfismo f: A → B en 𝓒 tal que el siguiente diagrama conmuta:
+De manera dual, una F-coálgebra es un par (A, α) donde A es un objeto de $\mathscr{C}$ y α: A → F A es un morfismo en $\mathscr{C}$. Un morfismo entre dos F-coálgebras (A, α) y (B, β) es un morfismo f: A → B en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
 
 ```
        A ----f---------> B
@@ -312,16 +312,6 @@ Para evitar estos problemas se pueden considerar aquellas coálgebras que para c
 
 Es de interés preguntarse si existen otras álgebras corecursivas o coálgebras recursivas además de las iniciales y terminales. Las reglas de unicidad nos permiten construir nuevas álgebras corecursivas y coálgebras recursivas a partir de otras ya conocidas.
 
-
-
-
-
-
-
-
-
-
-
 ### Definiciones previas
 #### Funtores entre álgebras
 ##### El funtor olvido
@@ -359,30 +349,21 @@ $$
 
 #### Adjunciones
 Dadas dos categorías $\mathscr{C}$ y $\mathscr{D}$ localmente pequeñas(como por ejemplo, $\mathbf{Hask}$), la adjunción determinada por los funtores $L: \mathscr{C} \to \mathscr{D}$ y $R: \mathscr{D} \to \mathscr{C}$ con unidad de adjunción $\eta: 1_{\mathscr{C}} \to R \circ L$ y counidad de adjunción $\epsilon: L \circ R \to 1_{\mathscr{D}}$. La misma define un isomorfismo natural entre los conjuntos de morfismos:
-$$\operatorname{Hom}_\mathscr{D}(L A, B) \cong \operatorname{Hom}_\mathscr{C}(A, R B)$$
+$$\operatorname{Hom}_{\mathscr{D}}(L A, B) \cong \operatorname{Hom}_{\mathscr{C}}(A, R B)$$
 
 Al isomorfismo que relaciona los morfismos $L C \to D$ lo denoto como $\lceil - \rceil$ y al isomorfismo que relaciona los morfismos $C \to R D$ lo denoto como $\lfloor - \rfloor$.
 
 #### Transformaciones naturales conjugadas
-Sean las adjunciones $L\dashv R: \mathscr{C} \to \mathscr{D}$ y $L' \dashv R': \mathscr{C}' \to \mathscr{D}'$ y dos funtores $H:\mathscr{C}\to\mathscr{C}'$ y $K:\mathscr{D}\to\mathscr{D}'$. Dos transformaciones naturales $\sigma: L' \circ K \to H \circ L$ y $\tau: K \circ R \to R' \circ H$ son *conjugadas* y se denota como $\sigma \dashv \tau$ si se cumple una de dos propiedades:
+Las transformaciones naturales conjugadas surgen de la idea de estudiar como se relaciona una adjunción entre 2 categorías con otra adjunción entre otras 2 categorías a través de funtores que relacionan ambas parejas de categorías. De manera informal, sean las adjunciones $L\dashv R: \mathscr{C} \to \mathscr{D}$ y $L' \dashv R': \mathscr{C}' \to \mathscr{D}'$ y dos funtores $H:\mathscr{C}\to\mathscr{C}'$ y $K:\mathscr{D}\to\mathscr{D}'$. Dos transformaciones naturales $\sigma: L' \circ K \to H \circ L$ y $\tau: K \circ R \to R' \circ H$ son *conjugadas* y se denota como $\sigma \dashv \tau$ si ambas estan relacionadas mediante adjunciones:
 $$
 \lfloor H f \circ \sigma_A \rfloor' = \tau_B \circ K \lfloor f \rfloor
 $$
-
+o bien
 $$
 H \lceil g \rceil \circ \sigma_A = \lceil \tau_B \circ K g \rceil'
 $$
 
-Para todo $f \in \operatorname{Hom}_{\mathscr{C}}(L A, B)$ y todo $g \in \operatorname{Hom}_{\mathscr{C}'}(A, R' B)$. UNa propiedad importante es que cada una determina automáticamente a la otra.
-
-### Coalgebras recursivas y álgebras corecursivas
-
-#### Definición
-Una $F$-coálgebra $(C, \gamma)$ es *recursiva* si para cualquier $F$-álgebra $(A, \alpha)$ existe un único hylomorfismo $h: C \to A$. Dicho hylmorfismo se denota $(|\gamma \to \alpha|)$.
-
-**Ejemplo:** El $F$-álgebra inicial con *carrier* $\nu F$ y acción $out_F^{-1}: F(\nu F) \to \nu F$ es recursiva.
-
-De manera análoga pueden definirse la *$F$-algebras corecursivas* como aquellas que para cualquier $F$-coálgebra $(C, \gamma)$ existe un único hylomorfismo $h: A \to C$ entre ambas.
+Para todo $f \in \operatorname{Hom}_{\mathscr{C}}(L A, B)$ y todo $g \in \operatorname{Hom}_{\mathscr{D}}(A, R B)$. Una propiedad importante es que es posible determinar $\sigma$ si se conoce $\tau$ y viceversa.
 
 ### Rolling rule
 Ahora consideramos àlgebras y coálgebras definidas por la composición de dos endofuntores base. La *rolling rule* nos permite ...
