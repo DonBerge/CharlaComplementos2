@@ -56,7 +56,7 @@ Usar el patrón *fold* nos permite reutilizar código, mejorar la legibilidad y 
 
 No todos los algoritmos recursivos siguen el patrón *fold*. Por ejemplo, *makeTree* no consume ninguna estructura de datos para devolver su resultado y si bien *qsort* consume una estructura de tipo lista, previamente realiza otras acciones por lo que no puede implementarse directamente como un *fold*.
 
-Sin embargo, muchos de los algoritmos de recursión estructurada pueden unificarse bajo un mismo esquema general, los *hylomorfismos conjugados*.
+Sin embargo, muchos de los algoritmos de recursión estructurada pueden unificarse bajo un mismo esquema general, los *hylomorfismos*.
 
 ## F-algebras y F-coálgebras
 
@@ -95,7 +95,7 @@ Sea $(\mu F, in_F)$ un álgebra inicial. Entonces, $in_F: F(\mu F) \to \mu F$ es
 #### Corolario
 Sea $(\nu F, out_F)$ una coálgebra terminal. Entonces, $out_F: \nu F \to F(\nu F)$ es un isomorfismo.
 
-#### Definición
+#### Punto fijo de un funtor
 Un objeto $X$ de una categoría $\mathscr{C}$ es un *punto fijo* del endofuntor $F: \mathscr{C} \to \mathscr{C}$ si $F(X) \cong X$.
 
 #### Teorema
@@ -107,7 +107,7 @@ Al único morfismo de F-álgebras de $(\mu F, in_F)$ a cualquier otra F-álgebra
 Muchas estructuras de datos pueden definirse como F-álgebras o F-coálgebras donde el *carrier* es un punto fijo de $F$.
 
 ### Ejemplo: Listas finitas de tipo a
-Podemos ver los tipos de un lenguaje como objetos de una categoría y a las funciones que operan entre ellos como los homorfismos de dicha categoría. Consideremos la categoría $\mathbf{Hask}$ cuyos objetos son tipos de Haskell y cuyos morfismos son funciones entre dichos tipos.
+Podemos ver los tipos de un lenguaje como objetos de una categoría y a las funciones que operan entre ellos como los homorfismos de dicha categoría. Consideremos la categoría $\mathbf{Hask}$ cuyos objetos son tipos de Haskell y cuyos morfismos son las funciones **totales** entre dichos tipos.
 
 Las listas en Haskell se definen como
 ```haskell
@@ -118,7 +118,7 @@ Las listas de este tipo son un punto fijo del endofuntor `ListF a`:
 ```haskell
 data ListF a x = NilF | ConsF a x
   deriving (Show,Eq, Functor)
--- deriving Functor genera automáticamente una función fmap para ListF a
+-- deriving Functor genera automáticamente una función fmap para ListF
 -- fmap:: (x->y) -> ListF a x -> ListF a y
 -- Que no es más que el mapeo de ListF a sobre morfismos
 
@@ -142,6 +142,13 @@ innInv (x:xs) = ConsF x xs
 -- Necesitamos saber a que f-algebra ir, usamos la acción f del F-algebra destino para saberlo. 
 cata :: (ListF a b -> b) -> List a -> b
 cata f = a . fmap (cata f) . innInv
+
+-- Podemos usar cata para generalizar foldr:
+foldr:: (a->b->b) -> b -> List a -> b
+foldr op e = cata alg
+  where
+    alg NilF = e
+    alg (ConsF x xs) = op x xs
 ```
 
 ### Ejemplo: Arboles binarios posiblemente infinitos
@@ -172,9 +179,26 @@ outInv (N_F l x r) = N l x r
 
 ana :: (b -> TreeF a b) -> b -> Tree a
 ana f = outInv . fmap (ana f) . f
+
+-- Podemos usar ana para generalizar la generación de árboles:
+
+-- Generar un arbol binario completo de altura n con etiquetas n
+hasta :: Int -> Tree Int
+hasta n = ana gen n
+  where
+    gen x
+      | x==0 = E_F
+      | x==1 = L_F x
+      | otherwise = N_F (x-1) x (x-1)
+
+-- Generar un arbol binario infinito con etiquetas n
+infinito:: a -> Tree a
+infinito x = ana gen x
+  where
+    gen x = N_F x x x
 ```
 
-Los arboles posiblemente infinitos cuya ramificación es determinada por un funtor $G$ y que toman etiquetas de un tipo $a$ constituyen una coálgebra especial denominada $Cofree_G \ A$ 
+Los arboles posiblemente infinitos cuya ramificación es determinada por un funtor $G$ y que toman etiquetas en $A$ constituyen una coálgebra especial denominada $Cofree_G \ A$ 
 
 ## Hylomorfismos
 A grandes rasgos, dado un endofuntor $F$ sobre una categoría $\mathscr{C}$ tenemos que:
@@ -258,9 +282,9 @@ data Either a x = Left a | Right x
 
 -- Accion de la coálgebra
 c :: a -> Either A a
-c = if some_condition
-      then Left value_of_type_A --- termina la recursión
-      else Right next_iteration_value --- continua la recursión
+c x = if some_condition
+        then Left value_of_type_A --- termina la recursión
+        else Right next_iteration_value --- continua la recursión
 
 -- La acción del álgebra simplemente retorna el valor de tipo A
 a :: Either A A -> A
@@ -272,7 +296,31 @@ tailRecursion = a . fmap tailRecursion . c
 ```
 
 ## Coálgebras recursivas, álgebras corecursivas y reglas de unicidad
-La existencia y unicidad de un hylomorfismo para un álgebra y una coálgebra dadas no está garantizada en general. Generalmente es necesario analizar tanto el álgebra y la coálgebra para determinar si existe un único hylomorfismo entre ambas. Sin embargo, en casos extremos, la unicidad puede probarse concentrandose únicamente en el álgebra o la coálgebra.
+Los Hylomorfismos son altamente expresivos, en el sentido de que la enorme mayoría de los esquemas de recursión estructurada pueden definirse como hylomorfismos. Pero esta expresividad viene con un costo, no hay garantía de la existencia o unicidad de un hylomorfismo $h$ entre una $F$-coálgebra $(C, \gamma)$ y una $F$-álgebra $(A, \alpha)$ cualquiera.
+
+En el ejemplo de recursión de cola, si la coalgebra $c$ fuese definida como:
+```haskell
+c x = Right x
+```
+Entonces el hylomorfismo `tailRecursion` generaria una función que diverge para cualquier entrada.
+
+El problema es que la coálgebra puede llegar a generar una cantidad infinita de subproblemas mientras que el álgebra requiere que todos los subproblemas sean resueltos para poder combinar sus resultados. En este caso no existe un hylomorfismo entre ambas estructuras.
+
+Para evitar estos problemas se pueden considerar aquellas coálgebras que para cualquier álgebra la hyloecuación tiene una única solución y, de manera dual, aquellas álgebras que para cualquier coálgebra la hyloecuación tiene una única solución. Las primeras reciben el nombre de *coálgebras recursivas* y las segundas el nombre de *álgebras corecursivas*.
+
+**Toda álgebra inicial es corecursiva y toda coálgebra terminal es recursiva**: El hylomorfismo que resuelve la hyloecuación en estos casos es simplemente el catamorfismo o anamorfismo respectivamente.
+
+Es de interés preguntarse si existen otras álgebras corecursivas o coálgebras recursivas además de las iniciales y terminales. Las reglas de unicidad nos permiten construir nuevas álgebras corecursivas y coálgebras recursivas a partir de otras ya conocidas.
+
+
+
+
+
+
+
+
+
+
 
 ### Definiciones previas
 #### Funtores entre álgebras
