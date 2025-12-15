@@ -1,6 +1,13 @@
+---
+title: "Hylomorfismos conjugados"
+author: Agustín Fernández Bergé
+date: Dic 15, 2025
+geometry: margin=2cm
+output: pdf_document
+---
 # Hylomorfismos conjugados
 
-Basado en ...
+Basado en el paper "Conjugate Hylomorphisms" de Hinze, Wu y Gibbons.
 
 ## 1. Motivación
 En programación funcional es común usar estructuras de datos que se definen de manera inductiva:
@@ -54,46 +61,60 @@ mul xs = foldr (*) 1 xs
 ```
 Usar el patrón *fold* nos permite reutilizar código, mejorar la legibilidad y facilitar el razonamiento sobre los programas. Además, cualquier optimización o mejora en la implementación de `foldr` se verá reflejada automáticamente en todos los algoritmos que lo utilizan.
 
-No todos los algoritmos recursivos siguen el patrón *fold*. Por ejemplo, *makeTree* no consume ninguna estructura de datos para devolver su resultado y si bien *qsort* consume una estructura de tipo lista, previamente realiza otras acciones por lo que no puede implementarse directamente como un *fold*.
+No todos los algoritmos recursivos siguen el patrón *fold*. Por ejemplo, `makeTree` no consume ninguna estructura de datos para devolver su resultado (genera una estructura); y si bien `qsort` consume una estructura de tipo lista, previamente realiza otras acciones (descomposición en sublistas) por lo que no puede implementarse directamente como un *fold*.
 
-Sin embargo, muchos de los algoritmos de recursión estructurada pueden unificarse bajo un mismo esquema general, los *hylomorfismos*.
+Sin embargo, muchos de los algoritmos de recursión estructurada pueden unificarse bajo un mismo esquema general: los **hylomorfismos**. Estos combinan la generación de estructuras (como `makeTree`) con su consumo (como `foldr`), capturando el paradigma "Divide & Conquer" de manera elegante.
 
-## F-algebras y F-coálgebras
+## 2. F-álgebras y F-coálgebras
 
-### Definiciones
-Dada una categoría $\mathscr{C}$ y un endofuntor F: $\mathscr{C}$ → $\mathscr{C}$ denominado *funtor base*, una F-álgebra es un par (A, α) donde A es un objeto de $\mathscr{C}$ denominado *carrier* y α: F A → A es una morfismo en $\mathscr{C}$ denominado *acción*. Cuando el contexto lo permite, me referiré a una F-álgebra particular solo por su acción.
+### 2.1 Definiciones
+Dada una categoría $\mathscr{C}$ y un endofuntor $F: \mathscr{C} \to \mathscr{C}$ denominado *funtor base*, una **F-álgebra** es un par $(A, \alpha)$ donde:
 
-Un morfismo entre dos F-álgebras (A, α) y (B, β) es un morfismo f: A → B en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
+- $A$ es un objeto de $\mathscr{C}$ denominado *carrier* (portador)
+- $\alpha: F A \to A$ es un morfismo en $\mathscr{C}$ denominado *acción* o *evaluador*
+
+Intuitivamente, $\alpha$ especifica cómo "colapsar" o "evaluar" un nivel de estructura $F A$ en un valor $A$. Cuando el contexto lo permite, nos referiremos a una F-álgebra particular solo por su acción.
+
+Un morfismo entre dos F-álgebras $(A, \alpha)$ y $(B, \beta)$ es un morfismo $f: A \to B$ en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
 
 ```
       F A  ----F f---->  F B
        |                 |
-      α|                 |β
+      a|                 |b
        v                 v
        A ----f---------> B
 ```
 
-Las F-álgebras y sus morfismos forman una categoría denominada *categoría de F-álgebras* y denotada como $F-\mathbf{Alg}(\mathscr{C})$.
+Las F-álgebras y sus morfismos forman una categoría denominada *categoría de F-álgebras* y denotada como $F\text{-}\mathbf{Alg}(\mathscr{C})$.
 
-De manera dual, una F-coálgebra es un par (A, α) donde A es un objeto de $\mathscr{C}$ y α: A → F A es un morfismo en $\mathscr{C}$. Un morfismo entre dos F-coálgebras (A, α) y (B, β) es un morfismo f: A → B en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
+De manera dual, una **F-coálgebra** es un par $(A, \alpha)$ donde:
+
+- $A$ es un objeto de $\mathscr{C}$ denominado *carrier*
+- $\alpha: A \to F A$ es un morfismo en $\mathscr{C}$ denominado *acción* o *generador*
+
+Intuitivamente, $\alpha$ especifica cómo "generar" o "despliegar" un nivel de estructura $F A$ a partir de un valor $A$. 
+
+Un morfismo entre dos F-coálgebras $(A, \alpha)$ y $(B, \beta)$ es un morfismo $f: A \to B$ en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
 
 ```
        A ----f---------> B
        |                 |
-      α|                 |β
+      a|                 |b
        v                 v
       F A  ----F f---->  F B
 ```
-La categoría de F-coálgebras se denota como $F-\mathbf{Coalg}(\mathscr{C})$.
+La categoría de F-coálgebras se denota como $F\text{-}\mathbf{Coalg}(\mathscr{C})$.
 
-### F-álgebras iniciales y F-coálgebras terminales
-Al objeto inicial de la categoría de F-álgebras, si existe, se le denomina *álgebra inicial* y se denota como $(\mu F, in_F)$. De manera dual, al objeto terminal de la categoría de F-coálgebras, si existe, se le denomina *coálgebra terminal* y se denota como $(\nu F, out_F)$.
+### 2.2 F-álgebras iniciales y F-coálgebras terminales
+Al objeto inicial de la categoría de F-álgebras, si existe, se le denomina **álgebra inicial** y se denota como $(\mu F, \text{in}_F)$. De manera dual, al objeto terminal de la categoría de F-coálgebras, si existe, se le denomina **coálgebra terminal** y se denota como $(\nu F, \text{out}_F)$.
 
 #### Lema de Lambek
-Sea $(\mu F, in_F)$ un álgebra inicial. Entonces, $in_F: F(\mu F) \to \mu F$ es un isomorfismo.
+Sea $(\mu F, \text{in}_F)$ un álgebra inicial. Entonces, $\text{in}_F: F(\mu F) \to \mu F$ es un isomorfismo.
+
+*Intuición*: La acción del álgebra inicial no sólo colapsa un nivel de estructura, sino que establece una correspondencia biunívoca entre $F(\mu F)$ y $\mu F$.
 
 #### Corolario
-Sea $(\nu F, out_F)$ una coálgebra terminal. Entonces, $out_F: \nu F \to F(\nu F)$ es un isomorfismo.
+Sea $(\nu F, \text{out}_F)$ una coálgebra terminal. Entonces, $\text{out}_F: \nu F \to F(\nu F)$ es un isomorfismo.
 
 #### Punto fijo de un funtor
 Un objeto $X$ de una categoría $\mathscr{C}$ es un *punto fijo* del endofuntor $F: \mathscr{C} \to \mathscr{C}$ si $F(X) \cong X$.
@@ -101,10 +122,14 @@ Un objeto $X$ de una categoría $\mathscr{C}$ es un *punto fijo* del endofuntor 
 #### Teorema
 Los carriers de un álgebra inicial y una coálgebra terminal son puntos fijos del endofuntor $F$.
 
-Al único morfismo de F-álgebras de $(\mu F, in_F)$ a cualquier otra F-álgebra $(A, α)$ se le denomina *catamorfismo* o simplemente *fold* y se denota como $(|α|): \mu F \to A$($alpha$ esta rodeado por **banana brackets**). De manera dual, al único morfismo de F-coálgebras de cualquier otra F-coálgebra $(A, α)$ a $(\nu F, out_F)$ se le denomina *anamorfismo* y se denota como $|(α)|: A \to \nu F$(no pude encontrar el simbolo de parentesis, son como dos pilares ovalados).
+Al único morfismo de F-álgebras de $(\mu F, \text{in}_F)$ a cualquier otra F-álgebra $(A, \alpha)$ se le denomina **catamorfismo** o simplemente **fold** y se denota como $(|\alpha|): \mu F \to A$ (usando *banana brackets*). De manera dual, al único morfismo de F-coálgebras de cualquier otra F-coálgebra $(A, \alpha)$ a $(\nu F, \text{out}_F)$ se le denomina **anamorfismo** o **unfold** y se denota como $|(\alpha)|: A \to \nu F$ (usando *lens brackets*).
 
-### Estructuras de datos como F-álgebras y F-coálgebras
-Muchas estructuras de datos pueden definirse como F-álgebras o F-coálgebras donde el *carrier* es un punto fijo de $F$.
+### 2.3 Estructuras de datos como F-álgebras y F-coálgebras
+Muchas estructuras de datos pueden definirse como F-álgebras o F-coálgebras donde el *carrier* es un punto fijo de $F$. Esta perspectiva permite:
+
+- Separar la forma de la estructura (dada por $F$) de los datos que contiene
+- Definir algoritmos genéricos que funcionen para cualquier estructura con la misma forma
+- Razonar formalmente sobre propiedades de los algoritmos
 
 ### Ejemplo: Listas finitas de tipo a
 Podemos ver los tipos de un lenguaje como objetos de una categoría y a las funciones que operan entre ellos como los homorfismos de dicha categoría. Consideremos la categoría $\mathbf{Hask}$ cuyos objetos son tipos de Haskell y cuyos morfismos son las funciones **totales** entre dichos tipos.
@@ -122,7 +147,7 @@ data ListF a x = NilF | ConsF a x
 -- fmap:: (x->y) -> ListF a x -> ListF a y
 -- Que no es más que el mapeo de ListF a sobre morfismos
 
--- Notar que List a ≅ ListF a (List a)
+-- Notar que List a es un punto fijo de ListF a x
 ```
 
 Podemos definir un acción sobre `List a`:
@@ -200,181 +225,191 @@ infinito x = ana gen x
 
 Los arboles posiblemente infinitos cuya ramificación es determinada por un funtor $G$ y que toman etiquetas en $A$ constituyen una coálgebra especial denominada $Cofree_G \ A$ 
 
-## Hylomorfismos
+## 3. Hylomorfismos
 A grandes rasgos, dado un endofuntor $F$ sobre una categoría $\mathscr{C}$ tenemos que:
-- El endofuntor $F$ puede dar una cierta "estructura recursiva" a los objetos de $\mathscr{C}$.
-- El mismo endofuntor $F$ aplicado a un morfismo de $\mathscr{C}$ nos da un esquema de recursión sobre dicha estructura.
-- Las F-álgebras nos dan una forma de consumir dicha estructura recursiva para obtener un objeto *carrier*.
-- Las F-coálgebras permiten definir funciones que generan dicha estructura recursiva a partir de un objeto *carrier*.
+
+- El endofuntor $F$ puede dar una cierta "estructura recursiva" a los objetos de $\mathscr{C}$
+- El mismo endofuntor $F$ aplicado a un morfismo de $\mathscr{C}$ nos da un esquema de recursión sobre dicha estructura
+- Las F-álgebras nos dan una forma de **consumir** dicha estructura recursiva para obtener un objeto *carrier*
+- Las F-coálgebras permiten definir funciones que **generan** dicha estructura recursiva a partir de un objeto *carrier*
 
 La mayoría de los esquemas de recursión estructurada siguen una temática "Divide & Conquer":
- 1. Se descompone un problema en subproblemas más pequeños.
- 2. Se resuelve cada uno de los subproblemas.
- 3. Se combinan las soluciones de los subproblemas para obtener la solución del problema original.
 
-Podemos usar lo visto hasta ahora para definir este esquema de recursión de manera generalizada como un *hylomorfismo*.
+ 1. Se descompone un problema en subproblemas más pequeños (Divide)
+ 2. Se resuelve recursivamente cada uno de los subproblemas
+ 3. Se combinan las soluciones de los subproblemas para obtener la solución del problema original (Conquer)
 
-### Definición
-Sea $F$ un endofuntor sobre una categoría $\mathscr{C}$, $(A, \alpha)$ una $F$-álgebra y $(C, \gamma)$ una $F$-coálgebra. Un morfismo $h: C \to A$ en $\mathscr{C}$ es un *hylomorfismo*(o un homormofismo de álgebra a coálgebra) si satisface la siguiente hyloecuación:
-$$h = \alpha \circ F \ h \circ \gamma$$
+Podemos usar lo visto hasta ahora para definir este esquema de recursión de manera generalizada como un **hylomorfismo**.
+
+### 3.1 Definición
+Sea $F$ un endofuntor sobre una categoría $\mathscr{C}$, $(A, \alpha)$ una $F$-álgebra y $(C, \gamma)$ una $F$-coálgebra. Un morfismo $h: C \to A$ en $\mathscr{C}$ es un **hylomorfismo** (o un homomorfismo de coálgebra a álgebra) si satisface la siguiente **hyloecuación**:
+$$h = \alpha \circ F h \circ \gamma$$
 
 Es decir, un hylomorfismo hace conmutar el siguiente diagrama:
 
 ```
        C ----h---------> A
        |                 |
-      γ|                 |α
+      c|                 |a
        v                 v
       F C --F h------> F A
 ```
 
 El conjunto de todos los hylomorfismos entre la $F$-coálgebra $(C, \gamma)$ y la $F$-álgebra $(A, \alpha)$ se denota como $\operatorname{Hylo}((C, \gamma),(A, \alpha))$ o simplemente $\operatorname{Hylo}_{\gamma}^{\alpha}$.
 
-El esquema "Divide & Conquer" se puede interpretar de la siguiente manera:
-- La coálgebra $(C, \gamma)$ descompone el problema original en subproblemas más pequeños.
-- El morfismo $F \ h$ resuelve cada uno de los subproblemas.
-- La álgebra $(A, \alpha)$ combina las soluciones de los subproblemas para obtener la solución del problema original.
+**Interpretación del esquema "Divide & Conquer"**:
 
-#### Los catamorfismos y anamorfismos son hylomorfismos
-Sea $(\mu F, in)$ el álgebra inicial y $(A, \alpha)$ una $F$-álgebra cualquiera. El catamorfismo $(|\alpha|): \mu F \to A$ satisface la siguiente ecuación:
-$$(|\alpha|) \circ in = \alpha \circ F \ (|\alpha|)$$
-$in$ es un isomorfismo por lo que se puede reordenar la ecuación anterior para obtener una hyloecuación:
-$$(|\alpha|) = \alpha \circ F \ (|\alpha|) \circ in^{-1}$$
-Dado que $in^{-1}: \mu F \to F(\mu F)$, $in^{-1}$ define una $F$-coálgebra. Por lo tanto, $(|\alpha|)$ es la solución de una hyloecuación y por ende es un hylomorfismo.
+- La coálgebra $(C, \gamma)$ **descompone** el problema original (de tipo $C$) en subproblemas más pequeños (dados por la estructura $F C$)
+- El morfismo $F h$ **resuelve recursivamente** cada uno de los subproblemas, aplicando $h$ a cada componente
+- El álgebra $(A, \alpha)$ **combina** las soluciones de los subproblemas (dadas por $F A$) para obtener la solución del problema original (de tipo $A$)
 
-De manera analoga se puede probar que un anamorfismo es un hylomorfismo.
+### 3.2 Los catamorfismos y anamorfismos son hylomorfismos
+Sea $(\mu F, \text{in})$ el álgebra inicial y $(A, \alpha)$ una $F$-álgebra cualquiera. El catamorfismo $(|\alpha|): \mu F \to A$ satisface la siguiente ecuación:
+$$(|\alpha|) \circ \text{in} = \alpha \circ F (|\alpha|)$$
+$\text{in}$ es un isomorfismo por el Lema de Lambek, por lo que se puede reordenar la ecuación anterior para obtener una hyloecuación:
+$$(|\alpha|) = \alpha \circ F (|\alpha|) \circ \text{in}^{-1}$$
+Dado que $\text{in}^{-1}: \mu F \to F(\mu F)$, el morfismo $\text{in}^{-1}$ define una $F$-coálgebra $(\mu F, \text{in}^{-1})$. Por lo tanto, $(|\alpha|)$ es la solución de una hyloecuación y por ende es un hylomorfismo.
 
-#### Ejemplo: Quicksort
-El algoritmo de ordenamiento rápido (quicksort) se puede definir como un hylomorfismo.
+De manera análoga se puede probar que un anamorfismo es un hylomorfismo.
+
+**Conclusión**: Los catamorfismos y anamorfismos son casos especiales de hylomorfismos.
+
+### 3.3 Ejemplo: Quicksort
+El algoritmo de ordenamiento rápido (quicksort) se puede definir como un hylomorfismo que captura perfectamente el paradigma "Divide & Conquer":
+
 ```haskell
--- Considerar el endofuntor QsortF definido como:
-data QsortF a x = Nil | Cons x a x
+-- Consideremos el endofuntor QsortF definido como:
+data QsortF a x = NilF | ConsF x a x
   deriving Functor
--- fmap:: (a->b) -> QsortF c a -> QsortF c b
--- fmap Nil = NIl
--- fmap (Cons l p r) = Cons (f l) p (f r)
+-- fmap :: (x->y) -> QsortF a x -> QsortF a y
+-- fmap _ NilF = NilF
+-- fmap f (ConsF l p r) = ConsF (f l) p (f r)
 
--- La acción de la coálgebra genera los subproblemas
+-- La acción de la coálgebra descompone la lista en sublistas
+-- (elementos menores, pivote, elementos mayores)
 c :: Ord a => [a] -> QsortF a [a]
-c []     = Nil
-c (x:xs) = Cons smaller x larger
+c []     = NilF
+c (x:xs) = ConsF smaller x larger
   where
-    smaller = [y | y <- xs, y <  x]
-    larger  = [y | y <- xs, y >= x]
+    smaller = [y | y <- xs, y <  x]  -- Subproblema izquierdo
+    larger  = [y | y <- xs, y >= x]  -- Subproblema derecho
 
 -- La acción del álgebra combina las soluciones de los subproblemas
+-- concatenando las listas ya ordenadas
 a :: QsortF a [a] -> [a]
-a Nil = []
-a (Cons smaller p larger) = smaller ++ [p] ++ larger
+a NilF = []
+a (ConsF smaller p larger) = smaller ++ [p] ++ larger
 
--- Qsort es un hylomorfismo entre la coálgebra c y el álgebra a
+-- Quicksort es un hylomorfismo entre la coálgebra c y el álgebra a
 qsort :: Ord a => [a] -> [a]
 qsort = a . fmap qsort . c
 ```
 
-#### Ejemplo: Recursión de cola
-El funtor $(A+-)$ puede usarse para modelar la recursión de cola. Sea $A$ un conjunto fijo, una función recursiva de cola puede retornar con un valor $A$ o bien puede continuar a una siguiente iteración. Los programas que usan recursión de cola son capturados por la siguiente hyloecuación:
-$$h=(id \triangledown id) \circ (A+h) \circ c = (id \triangledown h) \circ c$$
+### 3.4 Ejemplo: Recursión de cola
+El funtor $(A+{-})$ (coproducto con un tipo fijo $A$) puede usarse para modelar la recursión de cola. Sea $A$ un tipo fijo, una función recursiva de cola puede:
+
+- Retornar con un valor de tipo $A$ (caso base)
+- Continuar a una siguiente iteración (caso recursivo)
+
+Los programas que usan recursión de cola son capturados por la siguiente hyloecuación:
+$$h=(\text{id} \nabla \text{id}) \circ (A+h) \circ c = (\text{id} \nabla h) \circ c$$
+Donde $\nabla$ denota el cotupling (combinar dos funciones en un coproducto).
+
 ```haskell
--- Considerar Either A B como el coproducto A+B
+-- Consideremos Either a x como el coproducto A+x
 data Either a x = Left a | Right x
-  deriving (Show,Eq)
+  deriving (Show, Eq, Functor)
 -- fmap f (Left a) = Left a
 -- fmap f (Right x) = Right (f x)
 
--- Accion de la coálgebra
+-- Acción de la coálgebra: decide si terminar o continuar
 c :: a -> Either A a
 c x = if some_condition
-        then Left value_of_type_A --- termina la recursión
-        else Right next_iteration_value --- continua la recursión
+        then Left value_of_type_A    -- Termina la recursión (caso base)
+        else Right next_iteration_value -- Continúa la recursión (caso recursivo)
 
 -- La acción del álgebra simplemente retorna el valor de tipo A
+-- o el resultado de la siguiente iteración
 a :: Either A A -> A
-a (Left a) = a
-a (Right b) = b
+a (Left a) = a   -- Caso base: retornar el valor
+a (Right b) = b  -- Caso recursivo: ya se evaluó recursivamente
 
 tailRecursion :: a -> A
 tailRecursion = a . fmap tailRecursion . c
 ```
 
-## Coálgebras recursivas y álgebras corecursivas
-Los Hylomorfismos son altamente expresivos, en el sentido de que la enorme mayoría de los esquemas de recursión estructurada pueden definirse como hylomorfismos. Pero esta expresividad viene con un costo, no hay garantía de la existencia o unicidad de un hylomorfismo $h$ entre una $F$-coálgebra $(C, \gamma)$ y una $F$-álgebra $(A, \alpha)$ cualquiera.
+## 4. Coálgebras recursivas y álgebras corecursivas
+Los hylomorfismos son altamente expresivos: la enorme mayoría de los esquemas de recursión estructurada pueden definirse como hylomorfismos. Pero esta expresividad viene con un costo: **no hay garantía de la existencia o unicidad** de un hylomorfismo $h$ entre una $F$-coálgebra $(C, \gamma)$ y una $F$-álgebra $(A, \alpha)$ cualquiera.
 
-En el ejemplo de recursión de cola, si la coalgebra $c$ fuese definida como:
+En el ejemplo de recursión de cola, si la coálgebra $c$ fuese definida como:
 ```haskell
-c x = Right x
+c x = Right x  -- Siempre continúa, nunca termina
 ```
-Entonces el hylomorfismo `tailRecursion` generaria una función que diverge para cualquier entrada.
+Entonces el hylomorfismo `tailRecursion` generaría una función que **diverge** (nunca termina) para cualquier entrada.
 
-El problema es que la coálgebra puede llegar a generar una cantidad infinita de subproblemas mientras que el álgebra requiere que todos los subproblemas sean resueltos para poder combinar sus resultados. En este caso no existe un hylomorfismo entre ambas estructuras.
+**El problema fundamental**: La coálgebra puede llegar a generar una cantidad infinita de subproblemas, mientras que el álgebra requiere que todos los subproblemas sean resueltos para poder combinar sus resultados. En este caso no existe un hylomorfismo entre ambas estructuras.
 
-Para evitar estos problemas se pueden considerar aquellas coálgebras que para cualquier álgebra la hyloecuación tiene una única solución y, de manera dual, aquellas álgebras que para cualquier coálgebra la hyloecuación tiene una única solución. Las primeras reciben el nombre de *coálgebras recursivas* y las segundas el nombre de *álgebras corecursivas*.
+Para evitar estos problemas, consideramos:
 
-En este caso, el único hylomorfismo entre un álgebra corecursiva $\alpha$ y otra coálgebra $\gamma$ se denota como $(|\alpha \leftarrow \gamma|)$ y en el caso dual se denota como $|( \alpha \leftarrow \gamma)|$.
+- **Coálgebras recursivas**: aquellas coálgebras que para cualquier álgebra la hyloecuación tiene una única solución
+- **Álgebras corecursivas**: aquellas álgebras que para cualquier coálgebra la hyloecuación tiene una única solución (de manera dual)
 
-**Toda álgebra inicial es corecursiva y toda coálgebra terminal es recursiva**: El hylomorfismo que resuelve la hyloecuación en estos casos es simplemente el catamorfismo o anamorfismo respectivamente.
+En estos casos, el único hylomorfismo entre un álgebra corecursiva $\alpha$ y una coálgebra $\gamma$ se denota como $(|\alpha \leftarrow \gamma|)$, y en el caso dual se denota como $|( \alpha \leftarrow \gamma )|$.
 
-Es de interés preguntarse si existen otras álgebras corecursivas o coálgebras recursivas además de las iniciales y terminales. Las reglas de unicidad nos permiten construir nuevas álgebras corecursivas y coálgebras recursivas a partir de otras ya conocidas.
+**Teorema**: Toda álgebra inicial es corecursiva y toda coálgebra terminal es recursiva. 
 
-## Reglas de unicidad
+El hylomorfismo que resuelve la hyloecuación en estos casos es simplemente el catamorfismo o anamorfismo respectivamente.
 
-### Definiciones previas
-#### Funtores entre álgebras
+Es de interés preguntarse si existen otras álgebras corecursivas o coálgebras recursivas además de las iniciales y terminales. Las **reglas de unicidad** nos permiten construir nuevas álgebras corecursivas y coálgebras recursivas a partir de otras ya conocidas.
+
+## 5. Reglas de unicidad
+
+### 5.2 Rolling rule
+
+#### Definiciones previas
+
 ##### El funtor olvido
-Dado que una $F$-álgebra(y respectivamente una $F$-coálgebra) posee más estructura que la categoría $\mathscr{C}$ sobre la cual está definida, es posible definir un funtor olvido de manera similar al de su contraparte en $\mathbf{Set}$. El funtor olvido de $F$-$\mathbf{Alg}(\mathscr{C})$ en $\mathscr{C}$ se denota como $U_F$ y su análogo sobre $G$-coálgebras se denota como $U^G$. Cuando operan sobre objetos, ambos funtores simplemente retornan el *carrier* de la álgebra o coálgebra respectivamente. Cuando operan sobre morfismos, ambos funtores retornan el mismo morfismo en $\mathscr{C}$.
+Dado que una $F$-álgebra (y respectivamente una $F$-coálgebra) posee más estructura que la categoría $\mathscr{C}$ sobre la cual está definida, es posible definir un **funtor olvido** de manera similar al de su contraparte en $\mathbf{Set}$. 
 
-##### Funtores promocion(o lifting)
-Un funtor $\bar H :F\text{-}\mathbf{Alg}(\mathscr{C})\to G\text{-}\mathbf{Alg}(\mathscr{D})$ es una *promoción* (o *lifting*) de un funtor $H:\mathscr{C}\to \mathscr{D}$ si el siguiente diagrama conmuta:
+El funtor olvido de $F$-$\mathbf{Alg}(\mathscr{C})$ en $\mathscr{C}$ se denota como $U_F$ y su análogo sobre $G$-coálgebras se denota como $U^G$. Cuando operan sobre objetos, ambos funtores simplemente retornan el *carrier* de la álgebra o coálgebra respectivamente. Cuando operan sobre morfismos, ambos funtores retornan el mismo morfismo en $\mathscr{C}$.
+
+**Intuición**: El funtor olvido "olvida" la estructura algebraica, recordando solo el carrier subyacente.
+
+##### Funtores promoción (lifting)
+Un funtor $\bar{H} :F\text{-}\mathbf{Alg}(\mathscr{C})\to G\text{-}\mathbf{Alg}(\mathscr{D})$ es una **promoción** (o *lifting*) de un funtor $H:\mathscr{C}\to \mathscr{D}$ si el siguiente diagrama conmuta:
 
 ```
-  F-Alg(\mathscr{C})  ----\bar H---->  G-Alg(\mathscr{D})
+  F-Alg(\mathscr{C})  ----\bar{H}---->  G-Alg(\mathscr{D})
           |                             |
         U_F                           U_G
           v                             v
       \mathscr{C}  ------H------->  \mathscr{D}
 ```
-Los funtores promoción solo cambian acciones, los *carriers* y los morfismos permanecen fijos. Un funtor promoción especial puede ser definido a partir de una transformación natural $\lambda: G \circ H \to H \circ F$. De esta forma se define el funtor promoción $H^\lambda$ como:
+**Intuición**: Los funtores promoción "elevan" un funtor entre categorías a un funtor entre categorías de álgebras. Solo cambian acciones, los *carriers* y los morfismos permanecen fijos (en el sentido de que $U_G \circ \bar{H} = H \circ U_F$).
+
+Un funtor promoción especial puede ser definido a partir de una transformación natural $\lambda: G \circ H \to H \circ F$. De esta forma se define el funtor promoción $H^\lambda$ como:
 $$
-H^\lambda (A, \alpha) = (H A, H \alpha \circ \lambda_A) \quad H^{\lambda}(h)=h
+H^\lambda (A, \alpha) = (H A, H \alpha \circ \lambda_A) \quad H^{\lambda}(h)=H h
 $$
 
-De manera dual se pueden definir los funtores copromoción (o *colifting*) entre categorías de coálgebras. Un funtor $\bar H :F\text{-}\mathbf{Coalg}(\mathscr{C})\to G\text{-}\mathbf{Coalg}(\mathscr{C})$ es una *copromoción* de un funtor $H:\mathscr{C}\to \mathscr{C}$ si el siguiente diagrama conmuta:
+De manera dual se pueden definir los **funtores copromoción** (o *colifting*) entre categorías de coálgebras. Un funtor $\bar{H} :F\text{-}\mathbf{Coalg}(\mathscr{C})\to G\text{-}\mathbf{Coalg}(\mathscr{D})$ es una **copromoción** de un funtor $H:\mathscr{C}\to \mathscr{D}$ si el siguiente diagrama conmuta:
 ```
-  F-Coalg(\mathscr{C})  ----\bar H---->  G-Coalg(\mathscr{C})
+  F-Coalg(\mathscr{C})  ----\bar{H}---->  G-Coalg(\mathscr{D})
           |                             |
         U^F                           U^G
           v                             v
-      \mathscr{C}  ------H------->  \mathscr{C}
+      \mathscr{C}  ------H------->  \mathscr{D}
 ```
 
 Y dada una transformación natural $\lambda: H \circ F \to G \circ H$, se define el funtor copromoción $H_\lambda$ como:
 $$
-H_\lambda (A, \alpha) = (H A, \lambda_A \circ H \alpha) \quad H_{\lambda}(h)=h
+H_\lambda (A, \alpha) = (H A, \lambda_A \circ H \alpha) \quad H_{\lambda}(h)=H h
 $$
 
+### La Rolling rule
+Ahora consideramos álgebras y coálgebras definidas por la **composición de dos endofuntores** base.
 
-#### Adjunciones
-Dadas dos categorías $\mathscr{C}$ y $\mathscr{D}$ localmente pequeñas(como por ejemplo, $\mathbf{Hask}$), la adjunción determinada por los funtores $L: \mathscr{C} \to \mathscr{D}$ y $R: \mathscr{D} \to \mathscr{C}$ con unidad de adjunción $\eta: 1_{\mathscr{C}} \to R \circ L$ y counidad de adjunción $\epsilon: L \circ R \to 1_{\mathscr{D}}$. La misma define un isomorfismo natural entre los conjuntos de morfismos:
-$$\operatorname{Hom}_{\mathscr{D}}(L A, B) \cong \operatorname{Hom}_{\mathscr{C}}(A, R B)$$
-
-Al isomorfismo que relaciona los morfismos $L C \to D$ lo denoto como $\lceil - \rceil$ y al isomorfismo que relaciona los morfismos $C \to R D$ lo denoto como $\lfloor - \rfloor$.
-
-#### Transformaciones naturales conjugadas
-Las transformaciones naturales conjugadas surgen de la idea de estudiar como se relaciona una adjunción entre 2 categorías con otra adjunción entre otras 2 categorías a través de funtores que relacionan ambas parejas de categorías. De manera informal, sean las adjunciones $L\dashv R: \mathscr{C} \to \mathscr{D}$ y $L' \dashv R': \mathscr{C}' \to \mathscr{D}'$ y dos funtores $H:\mathscr{C}\to\mathscr{C}'$ y $K:\mathscr{D}\to\mathscr{D}'$. Dos transformaciones naturales $\sigma: L' \circ K \to H \circ L$ y $\tau: K \circ R \to R' \circ H$ son *conjugadas* y se denota como $\sigma \dashv \tau$ si ambas estan relacionadas mediante adjunciones:
-$$
-\lfloor H f \circ \sigma_A \rfloor' = \tau_B \circ K \lfloor f \rfloor
-$$
-o bien
-$$
-H \lceil g \rceil \circ \sigma_A = \lceil \tau_B \circ K g \rceil'
-$$
-
-Para todo $f \in \operatorname{Hom}_{\mathscr{C}}(L A, B)$ y todo $g \in \operatorname{Hom}_{\mathscr{D}}(A, R B)$. Una propiedad importante es que es posible determinar $\sigma$ si se conoce $\tau$ y viceversa.
-
-### Rolling rule
-Ahora consideramos àlgebras y coálgebras definidas por la composición de dos endofuntores base.
-
-Suponiendo que se tiene el siguiente diagrama, donde $(L,R)$ son dos funtores entre dos categorías $\mathscr{C}$ y $\mathscr{D}$:
+Supongamos que tenemos el siguiente diagrama, donde $(L,R)$ son dos funtores entre dos categorías $\mathscr{C}$ y $\mathscr{D}$:
 
 ```
 \begin{tikzcd}
@@ -386,23 +421,64 @@ Suponiendo que se tiene el siguiente diagrama, donde $(L,R)$ son dos funtores en
 Se puede construir $\bar R$ y $\bar L$ a partir de una transformación natural $\lambda: L \circ (R \circ L) \to (L \circ R) \circ L$; una transformación que cumple esto es la identidad: $\bar L=L_{id}$ y $\bar R=R^{id}$.
 
 La rolling rule establece una "adjunción" entre dos tipos de hylomorfismos:
+
 #### Teorema (Rolling rule)
-Sea $(A, \alpha)$ una $(L \circ R)$-álgebra en $\mathscr{C}$ y $(C, \gamma)$ una $(R \circ L)$-coálgebra en $\mathscr{D}$. Entonces:
+Sea $(A, \alpha)$ una $(L \circ R)$-álgebra en $\mathscr{C}$ y $(C, \gamma)$ una $(R \circ L)$-coálgebra en $\mathscr{D}$. Entonces existe una correspondencia biunívoca:
 $$
-\bar L(C,\gamma) \mapsto (A,\alpha) \cong (C,\gamma) \mapsto \bar R(A,\alpha)
+\operatorname{Hylo}(\bar{L}(C,\gamma), (A,\alpha)) \cong \operatorname{Hylo}((C,\gamma), \bar{R}(A,\alpha))
 $$
 
-La relación es de "adjunción" entre comillas porque los hylomorfismos no forman una categoría(dos hylomorfismos no se pueden componer).
+**Nota**: La relación es de "adjunción" entre comillas porque los hylomorfismos no forman una categoría (dos hylomorfismos no se pueden componer en general).
 
-La rolling rule permite conseguir coálgebras recursivas y álgebras corecursivas a partir de otras ya conocidas.
+**Consecuencia**: La rolling rule permite conseguir coálgebras recursivas y álgebras corecursivas a partir de otras ya conocidas.
 
-#### Teorema
-Las copromociones preservan recursividad y las promociones preservan corecursividad.
-$$\underline{L}: (R\circ L)-\mathbf{Rec}(\mathscr{D}) \to (L \circ R)-\mathbf{Rec}(\mathscr{C})$$
-$$\overline{R}: (L\circ R)-\mathbf{Corec}(\mathscr{C}) \to (R \circ L)-\mathbf{Corec}(\mathscr{D})$$
+#### Teorema (Preservación de recursividad y corecursividad)
+Las copromociones preservan recursividad y las promociones preservan corecursividad:
+$$\underline{L}: (R\circ L)\text{-}\mathbf{Rec}(\mathscr{D}) \to (L \circ R)\text{-}\mathbf{Rec}(\mathscr{C})$$
+$$\overline{R}: (L\circ R)\text{-}\mathbf{Corec}(\mathscr{C}) \to (R \circ L)\text{-}\mathbf{Corec}(\mathscr{D})$$
 
-### Conjugate rule
-La rolling rule solo puede aplicarse cuando el funtor base es la composición de dos funtores. La conjugate rule extiende esta idea a cualquier par de endofuntores $F:\mathscr{C} \to \mathscr{C}$ y $G:\mathscr{D} \to \mathscr{D}$ cuando existe una adjunción $L \dashv R: \mathscr{C} \to \mathscr{D}$ y dos transformaciones naturales conjugadas $\sigma: L \circ G \to F \circ L$ y $\tau: G \circ R \to R \circ F$.
+Donde $\mathbf{Rec}$ denota la clase de coálgebras recursivas y $\mathbf{Corec}$ denota la clase de álgebras corecursivas.
+
+### 5.3 Conjugate rule
+
+La rolling rule solo puede aplicarse cuando el funtor base es la composición de dos funtores. La **conjugate rule** extiende esta idea a cualquier par de endofuntores $F:\mathscr{C} \to \mathscr{C}$ y $G:\mathscr{D} \to \mathscr{D}$ cuando existe una adjunción entre $\mathscr{C}$ y $\mathscr{D}$ y dos transformaciones naturales especiales.
+
+#### Definiciones previas
+
+##### Adjunciones
+
+Dadas dos categorías $\mathscr{C}$ y $\mathscr{D}$ localmente pequeñas (como por ejemplo $\mathbf{Hask}$), una **adjunción** determinada por los funtores $L: \mathscr{C} \to \mathscr{D}$ y $R: \mathscr{D} \to \mathscr{C}$ con unidad de adjunción $\eta: 1_{\mathscr{C}} \to R \circ L$ y counidad de adjunción $\varepsilon: L \circ R \to 1_{\mathscr{D}}$, se denota como $L \dashv R$.
+
+La adjunción define un isomorfismo natural entre los conjuntos de morfismos:
+$$\operatorname{Hom}_{\mathscr{D}}(L A, B) \cong \operatorname{Hom}_{\mathscr{C}}(A, R B)$$
+
+Al isomorfismo que relaciona los morfismos $L C \to D$ lo denotamos como $\lceil - \rceil$ y al isomorfismo que relaciona los morfismos $C \to R D$ lo denotamos como $\lfloor - \rfloor$.
+
+##### Transformaciones naturales conjugadas
+
+Las transformaciones naturales conjugadas surgen de la idea de estudiar cómo se relaciona una adjunción entre 2 categorías con otra adjunción entre otras 2 categorías a través de funtores que relacionan ambas parejas de categorías. 
+
+Sean las adjunciones $L\dashv R: \mathscr{C} \to \mathscr{D}$ y $L' \dashv R': \mathscr{C}' \to \mathscr{D}'$ y dos funtores $H:\mathscr{C}\to\mathscr{C}'$ y $K:\mathscr{D}\to\mathscr{D}'$. Dos transformaciones naturales $\sigma: L' \circ K \to H \circ L$ y $\tau: K \circ R \to R' \circ H$ son **conjugadas** y se denota como $\sigma \dashv \tau$ si ambas están relacionadas mediante adjunciones:
+$$
+\lfloor H f \circ \sigma_A \rfloor' = \tau_B \circ K \lfloor f \rfloor
+$$
+o equivalentemente:
+$$
+H \lceil g \rceil \circ \sigma_A = \lceil \tau_B \circ K g \rceil'
+$$
+
+Para todo $f \in \operatorname{Hom}_{\mathscr{D}}(L A, B)$ y todo $g \in \operatorname{Hom}_{\mathscr{C}}(A, R B)$. 
+
+**Propiedad importante**: Es posible determinar $\sigma$ si se conoce $\tau$ y viceversa. Esta relación biunívoca es fundamental para las reglas de unicidad.
+
+#### La conjugate rule
+
+##### Definición
+
+Sean $F:\mathscr{C} \to \mathscr{C}$ y $G:\mathscr{D} \to \mathscr{D}$ dos endofuntores, supongamos que existe:
+
+- Una adjunción $L \dashv R: \mathscr{C} \to \mathscr{D}$
+- Dos transformaciones naturales conjugadas $\sigma: L \circ G \to F \circ L$ y $\tau: G \circ R \to R \circ F$
 
 En este caso, los funtores $L$ y $R$ se pueden promocionar hacia las categorías de álgebras y coálgebras utilizando las transformaciones naturales conjugadas. Se tiene el siguiente diagrama:
 ```
@@ -414,74 +490,94 @@ F-Coalg(\mathscr{C}) \arrow[u, "U_F"]                                           
 ```
 
 Podemos definir una "adjunción" entre hylomorfismos de manera similar a la rolling rule:
-#### Teorema (Conjugate rule)
-Sea $(A, \alpha)$ una $F$-álgebra en $\mathscr{C}$ y $(C, \gamma)$ una $G$-coálgebra en $\mathscr{D}$. Entonces:
+
+##### Teorema (Conjugate rule)
+Sea $(A, \alpha)$ una $F$-álgebra en $\mathscr{C}$ y $(C, \gamma)$ una $G$-coálgebra en $\mathscr{D}$. Entonces existe una correspondencia biunívoca:
 $$
-L_\sigma (C,\gamma) \mapsto (A,\alpha) \cong (C,\gamma) \mapsto R^\tau (A,\alpha)
+\operatorname{Hylo}(L_\sigma(C,\gamma), (A,\alpha)) \cong \operatorname{Hylo}((C,\gamma), R^\tau(A,\alpha))
 $$
 
-Y de manera similar a la rolling rule, se pueden conseguir coálgebras recursivas y álgebras corecursivas a partir de otras ya conocidas:
-#### Teorema
-Las copromociones preservan recursividad y las promociones preservan corecursividad si las mismas se realizan usando transformaciones naturales conjugadas.
+**Consecuencia**: De manera similar a la rolling rule, se pueden conseguir coálgebras recursivas y álgebras corecursivas a partir de otras ya conocidas:
+
+##### Teorema (Preservación con transformaciones conjugadas)
+Las copromociones preservan recursividad y las promociones preservan corecursividad si las mismas se realizan usando transformaciones naturales conjugadas:
 $$L_\sigma: G\text{-}\mathbf{Rec}(\mathscr{D}) \to F\text{-}\mathbf{Rec}(\mathscr{C})$$
 $$R^\tau: F\text{-}\mathbf{Corec}(\mathscr{C}) \to G\text{-}\mathbf{Corec}(\mathscr{D})$$
 
-La conjugate rule indica que hay una correspondencia biunívoca entre un par de hylomorfismos denominados *hylomorfismos conjugados*. Usando la notación de hylomorfismos únicos se puede escribir como sigue:
+La conjugate rule indica que hay una correspondencia biunívoca entre un par de hylomorfismos denominados **hylomorfismos conjugados**. Usando la notación de hylomorfismos únicos se puede escribir como sigue:
 $$
-\lfloor(|\alpha \leftarrow L_\sigma \gamma|)\rfloor = (|R^\tau \alpha \leftarrow \gamma|)
+\lfloor(|\alpha \leftarrow L_\sigma \gamma|)\rfloor = (| R^\tau \alpha \leftarrow \gamma|)
 $$
 $$
-\lceil|(R^\tau \alpha \leftarrow \gamma)|\rceil = |(\alpha \leftarrow L^\sigma \gamma)|
+\lceil|( R^\tau \alpha \leftarrow \gamma)|\rceil = |(\alpha \leftarrow L_\sigma \gamma)|
 $$
 
-#### Ejemplo Hylo-shift Law
+### 5.4 Ejemplo: Hylo-shift Law
 
 Usando la conjugate rule es posible derivar nuevas propiedades y esquemas de recursión a partir de una adjunción y un par de transformaciones naturales conjugadas.
 
-Un ejemplo es el siguiente:
+Sea $(A,\alpha)$ una $F$-álgebra, $(C,\gamma)$ una $G$-coálgebra sobre una categoría $\mathscr{C}$, y sea $\eta: G \to F$ una transformación natural. 
 
-Sea $(A,\alpha)$ una $F$-álgebra, $(C,\gamma)$ una $G$-coálgebra sobre una categoría $\mathscr{C}$, y sea $\eta: G \to F$ una transformación natural. Una adjunción sobre $\mathscr{C}$ se puede formar a partir del funtor identidad $(\operatorname{Id} \dashv \operatorname{Id})$. La misma transformación $\eta$ induce un par conjugado de transformaciones naturales $\eta: \operatorname{Id} \circ G \to F \circ \operatorname{Id}$ y $\eta: G \circ \operatorname{Id} \to \operatorname{Id} \circ F$. Por lo que la conjugate rule induce los hylomorfismos conjugados:
-$$
-(|\alpha \circ \eta A \leftarrow \gamma|) = (|\alpha \leftarrow \eta C \circ \gamma|)
-$$
-Esta ley se conoce como *hylo-shift law* y permite "mover" una transformación natural entre la acción de un álgebra y la acción de una coálgebra dentro de un hylomorfismo.
+Una adjunción sobre $\mathscr{C}$ se puede formar a partir del funtor identidad $(\operatorname{Id} \dashv \operatorname{Id})$. La misma transformación $\eta$ induce un par conjugado de transformaciones naturales:
+- $\eta: \operatorname{Id} \circ G \to F \circ \operatorname{Id}$
+- $\eta: G \circ \operatorname{Id} \to \operatorname{Id} \circ F$
 
-#### Ejemplo: Mutu-Hylos
-Elegir como adjunción los funtores $(\triangle \dashv (\times))$ da como resultado el esquema de recursión *mutu-hylos*, donde cada álgebra requiere del resultado de la otra para consumir su estructura. Un ejemplo del patrón mutu-hylo es el juego Minimax:
+Por lo que la conjugate rule induce los hylomorfismos conjugados:
+$$
+(|\alpha \circ \eta_A \leftarrow \gamma|) = (|\alpha \leftarrow \eta_C \circ \gamma|)
+$$
+Esta ley se conoce como **hylo-shift law** y permite "mover" una transformación natural entre la acción de un álgebra y la acción de una coálgebra dentro de un hylomorfismo.
+
+### 5.5 Ejemplo: Mutu-Hylos
+Elegir como adjunción los funtores $(\Delta \dashv (\times))$ (donde $\Delta$ es el funtor diagonal y $(\times)$ es el producto) da como resultado el esquema de recursión **mutu-hylos**, donde cada álgebra requiere del resultado de la otra para consumir su estructura. 
+
+Un ejemplo del patrón mutu-hylo es el juego Minimax:
 ```haskell
--- Minimax: Dos jugadores comienzan en la raiz de un arbol finito. En cada
--- turno pueden elegir si ir a la rama izquierda o la derecha del arbol.
+-- Minimax: Dos jugadores comienzan en la raíz de un árbol finito. En cada
+-- turno pueden elegir si ir a la rama izquierda o la derecha del árbol.
 -- El puntaje final es la suma de los valores de los nodos visitados.
 -- Un jugador siempre trata de maximizar el puntaje mientras otro trata
--- de minimizarlo. ¿Cual es el puntaje final?
+-- de minimizarlo. ¿Cuál es el puntaje final?
 
-data TreeF a x = E_F | N_F x a x deriving Functor
+data TreeF a x = E_F | N_F x a x 
+  deriving (Show, Eq, Functor)
 
+-- Álgebra que maximiza: toma el máximo de las dos ramas
+-- (usa el resultado del minimizador en las sublistas)
 a1 :: (Num p, Ord p) => TreeF p (a, p) -> p
 a1 E_F = 0
-a1 (N_F l v r) = v + (snd l `max` snd r)
+a1 (N_F l v r) = v + (snd l `max` snd r)  -- snd l es el puntaje del minimizador
 
+-- Álgebra que minimiza: toma el mínimo de las dos ramas  
+-- (usa el resultado del maximizador en las sublistas)
 a2 :: (Num p, Ord p) => TreeF p (p, b) -> p
 a2 E_F = 0
-a2 (N_F l v r) = v + (fst l `min` fst r)
+a2 (N_F l v r) = v + (fst l `min` fst r)  -- fst l es el puntaje del maximizador
 
-data Tree a = E | N (Tree a) a (Tree a) deriving Show
+data Tree a = E | N (Tree a) a (Tree a) 
+  deriving Show
 
 split :: (a->b) -> (a->c) -> (a->(b,c))
-split f g x = (f x,g x)
+split f g x = (f x, g x)
 
-outInv :: Tree a -> TreeF a (Tree a)
-outInv E = E_F
-outInv (N l x r) = N_F l x r
+outInv :: TreeF a (Tree a) -> Tree a
+outInv E_F = E
+outInv (N_F l x r) = N l x r
 
-maximize :: Tree Int -> Int
-maximize = a1 . fmap (split maximize minimize) . outInv
+out :: Tree a -> TreeF a (Tree a)
+out E = E_F
+out (N l x r) = N_F l x r
 
-minimize :: Tree Int -> Int
-minimize = a2 . fmap (split maximize minimize) . outInv
+-- Mutu-hylomorfismo: ambas funciones se llaman mutuamente
+maximize :: (Num a, Ord a) => Tree a -> a
+maximize = a1 . fmap (split maximize minimize) . out
 
---someTree :: Tree Int
---someTree = N (N E 2 E) 3 (N E 4 E)
+minimize :: (Num a, Ord a) => Tree a -> a
+minimize = a2 . fmap (split maximize minimize) . out
+
+-- Ejemplo de uso:
+-- someTree :: Tree Int
+-- someTree = N (N E 2 E) 3 (N E 4 E)
 -- maximize someTree == 7
 -- minimize someTree == 5
 ```
