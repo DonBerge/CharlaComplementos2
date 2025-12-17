@@ -3,12 +3,11 @@ title: "Hylomorfismos conjugados"
 author: Agustín Fernández Bergé
 date: Dic 15, 2025
 geometry: margin=2cm
-output: pdf_document
+output: pdf_documentc
+header-includes:
+  - \usepackage{tikz}
+  - \usetikzlibrary{cd}
 ---
-# Hylomorfismos conjugados
-
-Basado en el paper "Conjugate Hylomorphisms" de Hinze, Wu y Gibbons.
-
 ## 1. Motivación
 En programación funcional es común usar estructuras de datos que se definen de manera inductiva:
 
@@ -77,13 +76,11 @@ Intuitivamente, $\alpha$ especifica cómo "colapsar" o "evaluar" un nivel de est
 
 Un morfismo entre dos F-álgebras $(A, \alpha)$ y $(B, \beta)$ es un morfismo $f: A \to B$ en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
 
-```
-      F A  ----F f---->  F B
-       |                 |
-      a|                 |b
-       v                 v
-       A ----f---------> B
-```
+\begin{tikzcd}
+F A \arrow[r, "F f"] \arrow[d, "\alpha"'] & F B \arrow[d, "\beta"] \\
+A \arrow[r, "f"] & B
+\end{tikzcd}
+
 
 Las F-álgebras y sus morfismos forman una categoría denominada *categoría de F-álgebras* y denotada como $F\text{-}\mathbf{Alg}(\mathscr{C})$.
 
@@ -96,13 +93,11 @@ Intuitivamente, $\alpha$ especifica cómo "generar" o "despliegar" un nivel de e
 
 Un morfismo entre dos F-coálgebras $(A, \alpha)$ y $(B, \beta)$ es un morfismo $f: A \to B$ en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
 
-```
-       A ----f---------> B
-       |                 |
-      a|                 |b
-       v                 v
-      F A  ----F f---->  F B
-```
+\begin{tikzcd}
+A \arrow[r, "f"] \arrow[d, "\alpha"'] & B \arrow[d, "\beta"] \\
+F A \arrow[r, "F f"] & F B
+\end{tikzcd}
+
 La categoría de F-coálgebras se denota como $F\text{-}\mathbf{Coalg}(\mathscr{C})$.
 
 ### 2.2 F-álgebras iniciales y F-coálgebras terminales
@@ -131,7 +126,7 @@ Muchas estructuras de datos pueden definirse como F-álgebras o F-coálgebras do
 - Definir algoritmos genéricos que funcionen para cualquier estructura con la misma forma
 - Razonar formalmente sobre propiedades de los algoritmos
 
-### Ejemplo: Listas finitas de tipo a
+#### Ejemplo: Listas finitas de tipo a
 Podemos ver los tipos de un lenguaje como objetos de una categoría y a las funciones que operan entre ellos como los homorfismos de dicha categoría. Consideremos la categoría $\mathbf{Hask}$ cuyos objetos son tipos de Haskell y cuyos morfismos son las funciones **totales** entre dichos tipos.
 
 Las listas en Haskell se definen como
@@ -176,7 +171,7 @@ foldr op e = cata alg
     alg (ConsF x xs) = op x xs
 ```
 
-### Ejemplo: Arboles binarios posiblemente infinitos
+#### Ejemplo: Arboles binarios posiblemente infinitos
 El tipo:
 ```haskell
 data Tree a = E | L a | N (Tree a) a (Tree a)
@@ -247,13 +242,10 @@ $$h = \alpha \circ F h \circ \gamma$$
 
 Es decir, un hylomorfismo hace conmutar el siguiente diagrama:
 
-```
-       C ----h---------> A
-       |                 |
-      c|                 |a
-       v                 v
-      F C --F h------> F A
-```
+\begin{tikzcd}
+C \arrow[r, "h"] \arrow[d, "\gamma"'] & A \arrow[d, "\alpha"] \\
+F C \arrow[r, "F h"] & F A
+\end{tikzcd}
 
 El conjunto de todos los hylomorfismos entre la $F$-coálgebra $(C, \gamma)$ y la $F$-álgebra $(A, \alpha)$ se denota como $\operatorname{Hylo}((C, \gamma),(A, \alpha))$ o simplemente $\operatorname{Hylo}_{\gamma}^{\alpha}$.
 
@@ -378,13 +370,11 @@ El funtor olvido de $F$-$\mathbf{Alg}(\mathscr{C})$ en $\mathscr{C}$ se denota c
 ##### Funtores promoción (lifting)
 Un funtor $\bar{H} :F\text{-}\mathbf{Alg}(\mathscr{C})\to G\text{-}\mathbf{Alg}(\mathscr{D})$ es una **promoción** (o *lifting*) de un funtor $H:\mathscr{C}\to \mathscr{D}$ si el siguiente diagrama conmuta:
 
-```
-  F-Alg(\mathscr{C})  ----\bar{H}---->  G-Alg(\mathscr{D})
-          |                             |
-        U_F                           U_G
-          v                             v
-      \mathscr{C}  ------H------->  \mathscr{D}
-```
+\begin{tikzcd}
+F\text{-}\mathbf{Alg}(\mathscr{C}) \arrow[r, "\bar{H}"] \arrow[d, "U_F"'] & G\text{-}\mathbf{Alg}(\mathscr{D}) \arrow[d, "U_G"] \\
+\mathscr{C} \arrow[r, "H"] & \mathscr{D}
+\end{tikzcd}
+
 **Intuición**: Los funtores promoción "elevan" un funtor entre categorías a un funtor entre categorías de álgebras. Solo cambian acciones, los *carriers* y los morfismos permanecen fijos (en el sentido de que $U_G \circ \bar{H} = H \circ U_F$).
 
 Un funtor promoción especial puede ser definido a partir de una transformación natural $\lambda: G \circ H \to H \circ F$. De esta forma se define el funtor promoción $H^\lambda$ como:
@@ -393,31 +383,28 @@ H^\lambda (A, \alpha) = (H A, H \alpha \circ \lambda_A) \quad H^{\lambda}(h)=H h
 $$
 
 De manera dual se pueden definir los **funtores copromoción** (o *colifting*) entre categorías de coálgebras. Un funtor $\bar{H} :F\text{-}\mathbf{Coalg}(\mathscr{C})\to G\text{-}\mathbf{Coalg}(\mathscr{D})$ es una **copromoción** de un funtor $H:\mathscr{C}\to \mathscr{D}$ si el siguiente diagrama conmuta:
-```
-  F-Coalg(\mathscr{C})  ----\bar{H}---->  G-Coalg(\mathscr{D})
-          |                             |
-        U^F                           U^G
-          v                             v
-      \mathscr{C}  ------H------->  \mathscr{D}
-```
+
+\begin{tikzcd}
+F\text{-}\mathbf{Coalg}(\mathscr{C}) \arrow[r, "\bar{H}"] \arrow[d, "U^F"'] & G\text{-}\mathbf{Coalg}(\mathscr{D}) \arrow[d, "U^G"] \\
+\mathscr{C} \arrow[r, "H"] & \mathscr{D}
+\end{tikzcd}
 
 Y dada una transformación natural $\lambda: H \circ F \to G \circ H$, se define el funtor copromoción $H_\lambda$ como:
 $$
 H_\lambda (A, \alpha) = (H A, \lambda_A \circ H \alpha) \quad H_{\lambda}(h)=H h
 $$
 
-### La Rolling rule
+#### La Rolling rule
 Ahora consideramos álgebras y coálgebras definidas por la **composición de dos endofuntores** base.
 
 Supongamos que tenemos el siguiente diagrama, donde $(L,R)$ son dos funtores entre dos categorías $\mathscr{C}$ y $\mathscr{D}$:
 
-```
 \begin{tikzcd}
-(L\circ R)-Alg(\mathscr{C}) \arrow[d, "U^{L \circ R}"'] \arrow[rrr, "\bar R"] &  &  & (R\circ L)-Alg(\mathscr{C}) \arrow[d, "U^{R\circ L}"]                           \\
+(L\circ R)\text{-}Alg(\mathscr{C}) \arrow[d, "U^{L \circ R}"'] \arrow[rrr, "\bar R"] &  &  & (R\circ L)\text{-}Alg(\mathscr{C}) \arrow[d, "U^{R\circ L}"]                           \\
 \mathscr{C} \arrow[rrr, "R"', shift right]                                    &  &  & \mathscr{D} \arrow[lll, "L"', shift right]                                      \\
-(L\circ R)-CoAlg(\mathscr{C}) \arrow[u, "U_{L\circ R}"]                       &  &  & (R\circ L)-CoAlg(\mathscr{C}) \arrow[u, "U_{R \circ L}"'] \arrow[lll, "\bar L"]
+(L\circ R)\text{-}CoAlg(\mathscr{C}) \arrow[u, "U_{L\circ R}"]                       &  &  & (R\circ L)\text{-}CoAlg(\mathscr{C}) \arrow[u, "U_{R \circ L}"'] \arrow[lll, "\bar L"]
 \end{tikzcd}
-```
+
 Se puede construir $\bar R$ y $\bar L$ a partir de una transformación natural $\lambda: L \circ (R \circ L) \to (L \circ R) \circ L$; una transformación que cumple esto es la identidad: $\bar L=L_{id}$ y $\bar R=R^{id}$.
 
 La rolling rule establece una "adjunción" entre dos tipos de hylomorfismos:
@@ -437,7 +424,7 @@ Las copromociones preservan recursividad y las promociones preservan corecursivi
 $$\underline{L}: (R\circ L)\text{-}\mathbf{Rec}(\mathscr{D}) \to (L \circ R)\text{-}\mathbf{Rec}(\mathscr{C})$$
 $$\overline{R}: (L\circ R)\text{-}\mathbf{Corec}(\mathscr{C}) \to (R \circ L)\text{-}\mathbf{Corec}(\mathscr{D})$$
 
-Donde $\mathbf{Rec}$ denota la clase de coálgebras recursivas y $\mathbf{Corec}$ denota la clase de álgebras corecursivas.
+Donde $\mathbf{Rec}$ denota la subcategoría full de coálgebras recursivas y $\mathbf{Corec}$ denota la subcategoría full de álgebras corecursivas.
 
 ### 5.3 Conjugate rule
 
@@ -469,8 +456,6 @@ $$
 
 Para todo $f \in \operatorname{Hom}_{\mathscr{D}}(L A, B)$ y todo $g \in \operatorname{Hom}_{\mathscr{C}}(A, R B)$. 
 
-**Propiedad importante**: Es posible determinar $\sigma$ si se conoce $\tau$ y viceversa. Esta relación biunívoca es fundamental para las reglas de unicidad.
-
 #### La conjugate rule
 
 ##### Definición
@@ -481,13 +466,12 @@ Sean $F:\mathscr{C} \to \mathscr{C}$ y $G:\mathscr{D} \to \mathscr{D}$ dos endof
 - Dos transformaciones naturales conjugadas $\sigma: L \circ G \to F \circ L$ y $\tau: G \circ R \to R \circ F$
 
 En este caso, los funtores $L$ y $R$ se pueden promocionar hacia las categorías de álgebras y coálgebras utilizando las transformaciones naturales conjugadas. Se tiene el siguiente diagrama:
-```
+
 \begin{tikzcd}
-F-Alg(\mathscr{C}) \arrow[rr, "R^\tau"] \arrow[d, "U^F"']                                    &      & F-Alg(\mathscr{D}) \arrow[d, "U^G"]                                                         \\
+F\text{-}Alg(\mathscr{C}) \arrow[rr, "R^\tau"] \arrow[d, "U^F"']                                    &      & F\text{-}Alg(\mathscr{D}) \arrow[d, "U^G"]                                                         \\
 \mathscr C \arrow["F"', loop, distance=2em, in=215, out=145] \arrow[rr, "R"', shift right=2] & \bot & \mathscr D \arrow["G"', loop, distance=2em, in=35, out=325] \arrow[ll, "L"', shift right=2] \\
-F-Coalg(\mathscr{C}) \arrow[u, "U_F"]                                                        &      & G-Coalg(\mathscr{D}) \arrow[ll, "L_\sigma"] \arrow[u, "U_G"']                              
+F\text{-}Coalg(\mathscr{C}) \arrow[u, "U_F"]                                                        &      & G\text{-}Coalg(\mathscr{D}) \arrow[ll, "L_\sigma"] \arrow[u, "U_G"']                              
 \end{tikzcd}
-```
 
 Podemos definir una "adjunción" entre hylomorfismos de manera similar a la rolling rule:
 
@@ -512,9 +496,9 @@ $$
 \lceil|( R^\tau \alpha \leftarrow \gamma)|\rceil = |(\alpha \leftarrow L_\sigma \gamma)|
 $$
 
-### 5.4 Ejemplo: Hylo-shift Law
-
 Usando la conjugate rule es posible derivar nuevas propiedades y esquemas de recursión a partir de una adjunción y un par de transformaciones naturales conjugadas.
+
+### 5.4 Ejemplo: Hylo-shift Law
 
 Sea $(A,\alpha)$ una $F$-álgebra, $(C,\gamma)$ una $G$-coálgebra sobre una categoría $\mathscr{C}$, y sea $\eta: G \to F$ una transformación natural. 
 
@@ -543,13 +527,11 @@ data TreeF a x = E_F | N_F x a x
   deriving (Show, Eq, Functor)
 
 -- Álgebra que maximiza: toma el máximo de las dos ramas
--- (usa el resultado del minimizador en las sublistas)
 a1 :: (Num p, Ord p) => TreeF p (a, p) -> p
 a1 E_F = 0
 a1 (N_F l v r) = v + (snd l `max` snd r)  -- snd l es el puntaje del minimizador
 
--- Álgebra que minimiza: toma el mínimo de las dos ramas  
--- (usa el resultado del maximizador en las sublistas)
+-- Álgebra que minimiza: toma el mínimo de las dos ramas
 a2 :: (Num p, Ord p) => TreeF p (p, b) -> p
 a2 E_F = 0
 a2 (N_F l v r) = v + (fst l `min` fst r)  -- fst l es el puntaje del maximizador
@@ -560,15 +542,12 @@ data Tree a = E | N (Tree a) a (Tree a)
 split :: (a->b) -> (a->c) -> (a->(b,c))
 split f g x = (f x, g x)
 
-outInv :: TreeF a (Tree a) -> Tree a
-outInv E_F = E
-outInv (N_F l x r) = N l x r
-
+-- out es la acción de la coálgebra terminal
 out :: Tree a -> TreeF a (Tree a)
 out E = E_F
 out (N l x r) = N_F l x r
 
--- Mutu-hylomorfismo: ambas funciones se llaman mutuamente
+-- Mutu-hylos: ambas funciones se llaman mutuamente
 maximize :: (Num a, Ord a) => Tree a -> a
 maximize = a1 . fmap (split maximize minimize) . out
 
@@ -581,3 +560,14 @@ minimize = a2 . fmap (split maximize minimize) . out
 -- maximize someTree == 7
 -- minimize someTree == 5
 ```
+## 6. Referencias
+
+1. Hinze, R., Wu, N., & Gibbons, J. (2013). *Conjugate Hylomorphisms — Or: The Mother of All Structured Recursion Schemes*.
+
+2. Meijer, E., Fokkinga, M., & Paterson, R. (1991). *Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire*.
+
+3. Mac Lane, S. (1998). *Categories for the Working Mathematician*. Springer.
+
+4. Yang, Z., & Wu, N. (2019). *Fantastic Morphisms and Where to Find Them*.
+
+5. Complementos de matemática II - Apunte 2025.
