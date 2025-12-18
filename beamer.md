@@ -75,7 +75,7 @@ foldr :: (a->b->b) -> b -> List a -> b
 foldr op e [] = e
 foldr op e (x:xs) = op x (foldr op e xs)
 
-# sum y mul son simplemente:
+-- sum y mul son simplemente:
 sum xs = foldr (+) 0 xs
 mul xs = foldr (*) 1 xs
 ```
@@ -192,7 +192,7 @@ Un objeto $X$ en una categoría $\mathscr{C}$ es un **punto fijo** de un endofun
 
 \ 
 
-El carrier de toda álgebra inicial o coálgebra terminal es un punto fijo de su funtor base. En este caso, los catamorfismos(respectivamente anamorfismos) inducen un esquema de recursión que permiten consumir(respectivamente construir) dichas estructuras de datos.
+El carrier de toda álgebra inicial o coálgebra terminal es un punto fijo de su funtor base. En este caso, los catamorfismos (respectivamente anamorfismos) inducen un esquema de recursión que permiten consumir (respectivamente construir) dichas estructuras de datos.
 
 -----
 
@@ -249,7 +249,7 @@ ListF a (List a) = NilF | ConsF a (List a)  ===  List a
 
 \pause
 
-Mas aún, `List a` junto con la función:
+Más aún, `List a` junto con la función:
 ```haskell
 inn :: ListF a (List a) -> List a
 inn NilF         = Nil
