@@ -1,7 +1,7 @@
 ---
 title: "Hylomorfismos"
 author: "Agustín Fernández Bergé"
-date: "Diciembre 2025"
+date: "19 de Diciembre 2025"
 
 lang: es
 documentclass: beamer
@@ -257,3 +257,64 @@ C \arrow[r, "h"] \arrow[d, "\gamma"'] \& A                          \\
 F C \arrow[r, "F h"]              \& F A \arrow[u, "\alpha"']
 \end{tikzcd}
 \end{center}
+
+El conjunto de todos los hylomorfismos entre la $F$-coálgebra $(C, \gamma)$ y la $F$-álgebra $(A, \alpha)$ se denota como $\operatorname{Hylo}((C, \gamma),(A, \alpha))$ o simplemente $\operatorname{Hylo}_{\gamma}^{\alpha}$.
+
+-----
+
+## Ejemplo: Quicksort
+El algoritmo de ordenamiento rápido (quicksort) se puede definir como un hylomorfismo que captura perfectamente el paradigma "Divide & Conquer":
+
+Consideremos el endofuntor QsortF definido como:
+
+```haskell
+data QsortF a x = NilF | ConsF x a x
+  deriving Functor
+
+fmap :: (x->y) -> QsortF a x -> QsortF a y
+fmap f = ff
+  where
+    ff NilF           = NilF
+    ff (ConsF l p r)  = ConsF (f l) p (f r)
+```
+
+-----
+
+La acción de la coálgebra descompone la lista en sublistas (elementos menores, pivote, elementos mayores)
+```haskell
+c :: Ord a => [a] -> QsortF a [a]
+c []     = NilF
+c (x:xs) = ConsF smaller x larger
+  where
+    smaller = [y | y <- xs, y <  x]  -- Subproblema izquierdo
+    larger  = [y | y <- xs, y >= x]  -- Subproblema derecho
+```
+
+La acción del álgebra combina las soluciones de los subproblemas concatenando las listas ya ordenadas
+
+```haskell
+a :: QsortF a [a] -> [a]
+a NilF = []
+a (ConsF smaller p larger) = smaller ++ [p] ++ larger
+```
+
+Quicksort es un hylomorfismo entre la coálgebra c y el álgebra a
+
+```haskell
+qsort :: Ord a => [a] -> [a]
+qsort = a . fmap qsort . c
+```
+
+## Limites de los hylomorfismos
+La gran expresividad de los hylomorfismos tiene un costo, no toda hyloecuación tiene solución, mucho menos una solución única.
+
+Podemos considerar solo aquellas (co)álgebras que garantizan una solución única para cada hyloecuación. Se conocen como **coálgebras recursivas**($F$-$\mathbf{Rec}(\mathscr C)$) y **álgebras corecursivas**($F$-$\mathbf{Corec}(\mathscr C)$).
+
+Se puede probar que, bajo ciertas condiciones, los hylomorfismos siguen una relación de "adjunción":
+$$
+\operatorname{Hylo}(L(C,\gamma), (A,\alpha)) \cong \operatorname{Hylo}((C,\gamma), R(A,\alpha))
+$$
+
+Los funtores $L$ y $R$ preservan la recursividad y corecursividad respectivamente:
+$$L: G\text{-}\mathbf{Rec}(\mathscr{D}) \to F\text{-}\mathbf{Rec}(\mathscr{C})$$
+$$R: F\text{-}\mathbf{Corec}(\mathscr{C}) \to G\text{-}\mathbf{Corec}(\mathscr{D})$$
