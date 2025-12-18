@@ -28,6 +28,8 @@ data MathExpr = Num Real | Add MathExpr MathExpr | Mul MathExpr MathExpr
 ------
 
 Esto implica que podemos escribir *algoritmos recursivos* sobre estas estructuras:
+
+\pause
 ```haskell
 eval:: MathExpr -> Real
 eval (Real r) = r
@@ -51,6 +53,8 @@ qsort (p:xs) = (qsort smaller) ++ [p] ++ (qsort larger)
 ------
 
 Muchos de estos algoritmos son similares entre sí. Por ejemplo están aquellos que consumen una estructura para generar un valor:
+
+\pause
 ```haskell
 sum :: List Real -> Real
 sum [] = 0
@@ -64,6 +68,8 @@ mul (x:xs) = x * mul xs
 ------
 
 Podemos implementar ambos algoritmos bajo un mismo patrón denominado *foldr*:
+
+\pause
 ```haskell
 foldr :: (a->b->b) -> b -> List a -> b 
 foldr op e [] = e
@@ -73,6 +79,8 @@ foldr op e (x:xs) = op x (foldr op e xs)
 sum xs = foldr (+) 0 xs
 mul xs = foldr (*) 1 xs
 ```
+
+\pause
 
 Esto nos permite:
 
@@ -87,6 +95,8 @@ Esto nos permite:
 ------
 
 No todos los algoritmos siguen este patrón. Un ejemplo es `makeTree`, que construye una estructura a partir de un valor.
+
+\pause
 
 ```haskell
 makeTree :: Int -> Int -> Tree Int
@@ -109,7 +119,11 @@ Dada una categoría $\mathscr{C}$ y un endofuntor $F: \mathscr{C} \to \mathscr{C
 - $A$ es un objeto de $\mathscr{C}$ denominado *carrier* (portador)
 - $\alpha: F A \to A$ es un morfismo en $\mathscr{C}$ denominado *acción* o *evaluador*
 
+\pause
+
 Un **morfismo** entre dos F-álgebras $(A, \alpha)$ y $(B, \beta)$ es un morfismo $f: A \to B$ en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
+
+\pause
 
 
 \begin{center}
@@ -118,6 +132,8 @@ F A \arrow[r, "F f"] \arrow[d, "\alpha"'] \& F B \arrow[d, "\beta"] \\
 A \arrow[r, "f"] \& B
 \end{tikzcd}
 \end{center}
+
+\pause
 
 Las F-álgebras y sus morfismos forman una categoría denominada *categoría de F-álgebras* y denotada como $F\text{-}\mathbf{Alg}(\mathscr{C})$.
 
@@ -128,7 +144,11 @@ De manera dual, una **F-coálgebra** en una categoría $\mathscr{C}$ es un par $
 - $A$ es un objeto de $\mathscr{C}$ denominado *carrier*
 - $\alpha: A \to F A$ es un morfismo en $\mathscr{C}$ denominado *acción* o *generador*
 
+\pause
+
 Un morfismo entre dos F-coálgebras $(A, \alpha)$ y $(B, \beta)$ es un morfismo $f: A \to B$ en $\mathscr{C}$ tal que el siguiente diagrama conmuta:
+
+\pause
 
 \begin{center}
 \begin{tikzcd}[ampersand replacement=\&]
@@ -136,6 +156,8 @@ A \arrow[r, "f"] \arrow[d, "\alpha"'] \& B \arrow[d, "\beta"] \\
 F A \arrow[r, "F f"] \& F B
 \end{tikzcd}
 \end{center}
+
+\pause
 
 La categoría de F-coálgebras se denota como $F\text{-}\mathbf{Coalg}(\mathscr{C})$.
 
@@ -145,9 +167,15 @@ La categoría de F-coálgebras se denota como $F\text{-}\mathbf{Coalg}(\mathscr{
 
 Al objeto inicial de la categoría de F-álgebras, si existe, se le denomina **álgebra inicial** y se denota como $(\mu F, \text{in}_F)$. 
 
+\pause
+
 Al único morfismo de F-álgebras de $(\mu F, \text{in}_F)$ a cualquier otra F-álgebra $(A, \alpha)$ se le denomina **catamorfismo** o simplemente **fold** y se denota como $(|\alpha|): \mu F \to A$ (usando *banana brackets*). 
 
+\pause
+
 De manera dual, al objeto terminal de la categoría de F-coálgebras, si existe, se le denomina **coálgebra terminal** y se denota como $(\nu F, \text{out}_F)$.
+
+\pause
 
 Al único morfismo de F-coálgebras de cualquier otra F-coálgebra $(A, \alpha)$ a $(\nu F, \text{out}_F)$ se le denomina **anamorfismo** o **unfold** y se denota como $|(\alpha)|: A \to \nu F$ (usando *lens brackets*).
 
@@ -159,6 +187,8 @@ Muchas estructuras de datos pueden definirse como un álgebra o una coálgebra d
 
 ### Punto fijo de un endofuntor
 Un objeto $X$ en una categoría $\mathscr{C}$ es un **punto fijo** de un endofuntor $F: \mathscr{C} \to \mathscr{C}$ si existe un isomorfismo $X \cong F X$.
+
+\pause
 
 \ 
 
@@ -176,6 +206,8 @@ data ListF a x = NilF | ConsF a x
   deriving Functor
 ```
 
+\pause
+
 Con esta definición, dado un tipo `a` fijo, podemos crear nuevos tipos de datos:
 
 - `ListF a Int`
@@ -186,6 +218,8 @@ Con esta definición, dado un tipo `a` fijo, podemos crear nuevos tipos de datos
 -----
 
 Además el lenguaje infiere automáticamente la definición del funtor sobre morfismos:
+
+\pause
 ```haskell
 fmap :: (x -> y) -> (ListF a x -> ListF a y)
 fmap f = ff
@@ -193,6 +227,8 @@ fmap f = ff
         ff NilF         = NilF
         ff (ConsF a x)  = ConsF a (f x)
 ```
+
+\pause
 
 Dicha función cumple las leyes de los funtores:
 
@@ -211,6 +247,8 @@ Es un punto fijo del endofuntor `ListF a`:
 ListF a (List a) = NilF | ConsF a (List a)  ===  List a
 ```
 
+\pause
+
 Mas aún, `List a` junto con la función:
 ```haskell
 inn :: ListF a (List a) -> List a
@@ -218,6 +256,8 @@ inn NilF         = Nil
 inn (ConsF a xs) = Cons a xs
 ```
 constituyen el álgebra inicial de `ListF a`.
+
+\pause
 
 Por lo que se puede definir el catamorfismo desde `List a` hacia cualquier otra álgebra de acción `a`:
 ```haskell
@@ -229,10 +269,14 @@ cata a = a . fmap (cata a) . innInv
 
 A grandes rasgos, dado un endofuntor $F$ sobre una categoría $\mathscr{C}$ tenemos que:
 
+\pause
+
 - El endofuntor $F$ puede dar una cierta "estructura recursiva" a los objetos de $\mathscr{C}$
 - El mismo endofuntor $F$ aplicado a un morfismo de $\mathscr{C}$ nos da un esquema de recursión sobre dicha estructura
 - Las F-álgebras nos dan una forma de **consumir** dicha estructura recursiva para obtener un objeto *carrier*
 - Las F-coálgebras permiten definir funciones que **generan** dicha estructura recursiva a partir de un objeto *carrier*
+
+\pause
 
 La mayoría de los esquemas de recursión estructurada siguen una temática "Divide & Conquer":
 
@@ -249,7 +293,11 @@ Podemos usar lo visto hasta ahora para definir este esquema de recursión de man
 Sea $F$ un endofuntor sobre una categoría $\mathscr{C}$, $(A, \alpha)$ una $F$-álgebra y $(C, \gamma)$ una $F$-coálgebra. Un morfismo $h: C \to A$ en $\mathscr{C}$ es un **hylomorfismo** (o un homomorfismo de coálgebra a álgebra) si satisface la siguiente **hyloecuación**:
 $$h = \alpha \circ F \ h \circ \gamma$$
 
+\pause
+
 Es decir, un hylomorfismo hace conmutar el siguiente diagrama:
+
+\pause
 
 \begin{center}
 \begin{tikzcd}[ampersand replacement=\&]
@@ -258,12 +306,16 @@ F C \arrow[r, "F h"]              \& F A \arrow[u, "\alpha"']
 \end{tikzcd}
 \end{center}
 
+\pause
+
 El conjunto de todos los hylomorfismos entre la $F$-coálgebra $(C, \gamma)$ y la $F$-álgebra $(A, \alpha)$ se denota como $\operatorname{Hylo}((C, \gamma),(A, \alpha))$ o simplemente $\operatorname{Hylo}_{\gamma}^{\alpha}$.
 
 -----
 
 ## Ejemplo: Quicksort
 El algoritmo de ordenamiento rápido (quicksort) se puede definir como un hylomorfismo que captura perfectamente el paradigma "Divide & Conquer":
+
+\pause
 
 Consideremos el endofuntor QsortF definido como:
 
@@ -281,6 +333,8 @@ fmap f = ff
 -----
 
 La acción de la coálgebra descompone la lista en sublistas (elementos menores, pivote, elementos mayores)
+
+\pause
 ```haskell
 c :: Ord a => [a] -> QsortF a [a]
 c []     = NilF
@@ -290,7 +344,11 @@ c (x:xs) = ConsF smaller x larger
     larger  = [y | y <- xs, y >= x]  -- Subproblema derecho
 ```
 
+\pause
+
 La acción del álgebra combina las soluciones de los subproblemas concatenando las listas ya ordenadas
+
+\pause
 
 ```haskell
 a :: QsortF a [a] -> [a]
@@ -298,7 +356,11 @@ a NilF = []
 a (ConsF smaller p larger) = smaller ++ [p] ++ larger
 ```
 
+\pause
+
 Quicksort es un hylomorfismo entre la coálgebra c y el álgebra a
+
+\pause
 
 ```haskell
 qsort :: Ord a => [a] -> [a]
@@ -308,7 +370,11 @@ qsort = a . fmap qsort . c
 ## Limites de los hylomorfismos
 La gran expresividad de los hylomorfismos tiene un costo, no toda hyloecuación tiene solución, mucho menos una solución única.
 
+\pause
+
 Podemos considerar solo aquellas (co)álgebras que garantizan una solución única para cada hyloecuación. Se conocen como **coálgebras recursivas**($F$-$\mathbf{Rec}(\mathscr C)$) y **álgebras corecursivas**($F$-$\mathbf{Corec}(\mathscr C)$).
+
+\pause
 
 Se puede probar que, bajo ciertas condiciones, los hylomorfismos siguen una relación de "adjunción":
 $$
