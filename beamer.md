@@ -384,3 +384,15 @@ $$
 Los funtores $L$ y $R$ preservan la recursividad y corecursividad respectivamente:
 $$L: G\text{-}\mathbf{Rec}(\mathscr{D}) \to F\text{-}\mathbf{Rec}(\mathscr{C})$$
 $$R: F\text{-}\mathbf{Corec}(\mathscr{C}) \to G\text{-}\mathbf{Corec}(\mathscr{D})$$
+
+## Referencias
+
+1. Hinze, R., Wu, N., & Gibbons, J. (2013). Conjugate Hylomorphisms — Or: The Mother of All Structured Recursion Schemes.
+
+2. Meijer, E., Fokkinga, M., & Paterson, R. (1991). Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire.
+
+3. Mac Lane, S. (1998). *Categories for the Working Mathematician*. Springer.
+
+4. Yang, Z., & Wu, N. (2019). Fantastic Morphisms and Where to Find Them.
+
+5. Complementos de Matemática II - Apunte 2025.
